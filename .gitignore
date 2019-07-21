@@ -1,0 +1,6 @@
+Library/
+Libs/
+Logs/
+.vs/
+.vscode/
+obj/
