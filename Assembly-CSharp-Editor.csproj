@@ -293,18 +293,6 @@
  <Reference Include="UnityEditor.WindowsStandalone.Extensions">
  <HintPath>C:/Program Files/Unity/Editor/Data/PlaybackEngines/windowsstandalonesupport/UnityEditor.WindowsStandalone.Extensions.dll</HintPath>
  </Reference>
- <Reference Include="Box2DSharp">
- <HintPath>G:/TowerHope/TowerHope.Prototype.2/Assets/External/Box2DSharp.0.4.0/Box2DSharp.dll</HintPath>
- </Reference>
- <Reference Include="System.Buffers">
- <HintPath>G:/TowerHope/TowerHope.Prototype.2/Assets/External/Box2DSharp.0.4.0/System.Buffers.dll</HintPath>
- </Reference>
- <Reference Include="System.Memory">
- <HintPath>G:/TowerHope/TowerHope.Prototype.2/Assets/External/Box2DSharp.0.4.0/System.Memory.dll</HintPath>
- </Reference>
- <Reference Include="System.Runtime.CompilerServices.Unsafe">
- <HintPath>G:/TowerHope/TowerHope.Prototype.2/Assets/External/Box2DSharp.0.4.0/System.Runtime.CompilerServices.Unsafe.dll</HintPath>
- </Reference>
  <Reference Include="UnityEditor.Advertisements">
  <HintPath>G:/TowerHope/TowerHope.Prototype.2/Library/PackageCache/com.unity.ads@2.0.8/Editor/UnityEditor.Advertisements.dll</HintPath>
  </Reference>

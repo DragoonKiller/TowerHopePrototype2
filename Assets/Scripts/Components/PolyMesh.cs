@@ -5,18 +5,45 @@ using UnityEngine;
 using Utils;
 using static Utils.Algorthms;
 
-namespace Tower.Systems
+namespace Tower.Components
 {
-
     /// <summary>
-    /// 使用 Polygon Collider 手动调整的 mesh.
+    /// 实时读取 Polygon Collider 数据并生成 mesh.
     /// </summary>
+    [RequireComponent(typeof(PolygonCollider2D))]
+    [RequireComponent(typeof(MeshFilter))]
+    [ExecuteAlways]
     public class PolyMesh : MonoBehaviour
     {
+        //=====================================================================
+        // 关联组件
+        //=====================================================================
 
+        PolygonCollider2D pc => GetComponent<PolygonCollider2D>();
+        MeshFilter ms => GetComponent<MeshFilter>();
 
+        //=====================================================================
+        // 状态属性
+        //=====================================================================
 
+        /// <summary>
+        /// 是否应该刷新.
+        /// 主要用于编辑器内的刷新控制.
+        /// </summary>
+        public bool refresh;
 
+        //=====================================================================
+        // Unity API函数
+        //=====================================================================
+
+        void Update()
+        {
+            if(refresh) ms.mesh = ToMesh(pc);
+        }
+
+        //=====================================================================
+        // 内部函数
+        //=====================================================================
 
 
         /// <summary>

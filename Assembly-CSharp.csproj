@@ -55,21 +55,27 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\Components\CameraFollow.cs" />
+     <Compile Include="Assets\Scripts\Components\Environment.cs" />
      <Compile Include="Assets\Scripts\Components\PolyMesh.cs" />
+     <Compile Include="Assets\Scripts\Components\RoleAction.cs" />
+     <Compile Include="Assets\Scripts\Systems\CommandQueue\Command.cs" />
      <Compile Include="Assets\Scripts\Systems\EventSignals\InputSignalProcessor.cs" />
      <Compile Include="Assets\Scripts\Systems\EventSignals\InputSignals.cs" />
      <Compile Include="Assets\Scripts\Systems\SignalSystem\Signals.cs" />
      <Compile Include="Assets\Scripts\Systems\SignalSystem\SignalSystem.cs" />
+     <Compile Include="Assets\Scripts\Systems\Skill\SkillSystem.cs" />
      <Compile Include="Assets\Scripts\Systems\StateMachine\StateMachine.cs" />
      <Compile Include="Assets\Scripts\Utils\Algorithm\Geometry.cs" />
      <Compile Include="Assets\Scripts\Utils\Collections\CollectionExtension.cs" />
+     <Compile Include="Assets\Scripts\Utils\Log\Log.cs" />
      <Compile Include="Assets\Scripts\Utils\Maths\Constants.cs" />
+     <Compile Include="Assets\Scripts\Utils\Maths\CoordSys.cs" />
      <Compile Include="Assets\Scripts\Utils\Maths\Geometry.cs" />
      <Compile Include="Assets\Scripts\Utils\Maths\SuffixSyntax.cs" />
+     <Compile Include="Assets\Scripts\Utils\Nothing\Nothing.cs" />
      <Compile Include="Assets\Scripts\Utils\UnitTest\UnitTest.cs" />
-     <None Include="Assets\External\Box2DSharp.0.4.0\System.Memory.xml" />
-     <None Include="Assets\External\Box2DSharp.0.4.0\System.Runtime.CompilerServices.Unsafe.xml" />
-     <None Include="Assets\External\Box2DSharp.0.4.0\System.Buffers.xml" />
+     <None Include="Assets\Materials\TerrainMat\SampleTerrainShader.shader" />
  <Reference Include="Unity.Timeline.Editor">
  <HintPath>G:/TowerHope/TowerHope.Prototype.2/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
  </Reference>
@@ -291,18 +297,6 @@
  </Reference>
  <Reference Include="nunit.framework">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/TestRunner/net35/unity-custom/nunit.framework.dll</HintPath>
- </Reference>
- <Reference Include="Box2DSharp">
- <HintPath>G:/TowerHope/TowerHope.Prototype.2/Assets/External/Box2DSharp.0.4.0/Box2DSharp.dll</HintPath>
- </Reference>
- <Reference Include="System.Buffers">
- <HintPath>G:/TowerHope/TowerHope.Prototype.2/Assets/External/Box2DSharp.0.4.0/System.Buffers.dll</HintPath>
- </Reference>
- <Reference Include="System.Memory">
- <HintPath>G:/TowerHope/TowerHope.Prototype.2/Assets/External/Box2DSharp.0.4.0/System.Memory.dll</HintPath>
- </Reference>
- <Reference Include="System.Runtime.CompilerServices.Unsafe">
- <HintPath>G:/TowerHope/TowerHope.Prototype.2/Assets/External/Box2DSharp.0.4.0/System.Runtime.CompilerServices.Unsafe.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Analytics.Editor">
  <HintPath>G:/TowerHope/TowerHope.Prototype.2/Library/PackageCache/com.unity.analytics@3.3.2/Unity.Analytics.Editor.dll</HintPath>

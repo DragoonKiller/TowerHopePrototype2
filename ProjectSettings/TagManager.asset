@@ -16,6 +16,18 @@ TagManager:
   - PostProcessing
   - 
   - 
+  - Terrain
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - PlayerControl
+  - 
+  - 
+  - 
+  - NonPlayerControl
   - 
   - 
   - 
@@ -24,19 +36,7 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - NoInteraction
   m_SortingLayers:
   - name: Default
     uniqueID: 0

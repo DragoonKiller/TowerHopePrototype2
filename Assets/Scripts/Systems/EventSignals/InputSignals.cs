@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Tower.Systems
+namespace Systems
 {
     public static partial class Signals
     {

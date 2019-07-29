@@ -9,7 +9,6 @@ using UnityEngine;
 
 namespace Utils
 {
-
     public static partial class Collections
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -23,11 +22,29 @@ namespace Utils
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T GetOrDefault<R, T>(this SortedList<R, T> dict, R key, T defaultVal)
+        {
+            if(dict.TryGetValue(key, out T val)) return val;
+            dict.Add(key, defaultVal);
+            return defaultVal;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T GetOrDefault<R, T>(this SortedList<R, T> dict, R key)
+            where T : new()
+        {
+            if(dict.TryGetValue(key, out T val)) return val;
+            var res = new T();
+            dict.Add(key, res);
+            return res;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T GetOrDefault<R, T>(this Dictionary<R, T> dict, R key, T defaultVal)
         {
             if(dict.TryGetValue(key, out T val)) return val;
             dict.Add(key, defaultVal);
-            return default;
+            return defaultVal;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -155,6 +172,27 @@ namespace Utils
         {
             for(int i = 0; i < s.Length; i++) if(f(s[i])) return i;
             return -1;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEnumerable<T> ToEnumerable<T>(this IEnumerator<T> v)
+        {
+            while(v.MoveNext())
+            {
+                yield return v.Current;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEnumerable<T> ToEnumerable<T>(this T[] arr, int begin, int end)
+        {
+            for(int i = begin; i < end; i++) yield return arr[i];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEnumerable<T> ToEnumerable<T>(this T[] arr, int end)
+        {
+            for(int i = 0; i < end; i++) yield return arr[i];
         }
 
     }

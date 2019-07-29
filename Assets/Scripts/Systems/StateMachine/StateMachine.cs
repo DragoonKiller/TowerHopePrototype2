@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
-namespace Tower.Systems
+namespace Systems
 {
     /// <summary>
     /// 支持分层状态机的各种操作.
@@ -25,7 +27,7 @@ namespace Tower.Systems
                 /// <summary>
                 /// 该帧结束, 执行下一帧.
                 /// </summary>
-                Step,
+                Pass,
 
                 /// <summary>
                 /// 层次调用下一个状态机.
@@ -52,14 +54,18 @@ namespace Tower.Systems
             /// 接下来要操作的状态机.
             /// </summary>
             public StateMachine next;
-
-            public static Transfer Step() => new Transfer() { type = Type.Step, next = null };
-            public static Transfer Call(StateMachine x) => new Transfer() { type = Type.Call, next = x };
-            public static Transfer CallPass(StateMachine x) => new Transfer() { type = Type.CallPass, next = x };
-            public static Transfer Trans(StateMachine x) => new Transfer() { type = Type.Transfer, next = x };
         }
 
-        public abstract IEnumerator<Transfer> Step();
+        /// <summary>
+        /// 用于唯一地标记一个状态机.
+        /// 状态机可能会在不同的 StateMachine class 中转移, 
+        /// 但是这个标记不会发生改变.
+        /// 这样即使换了一个状态机对象也可以从外部删除.
+        /// </summary>
+        public struct Tag
+        {
+            public uint value;
+        }
 
         // ============================================================================================================
         // Dynamic storage and maintaince
@@ -78,17 +84,27 @@ namespace Tower.Systems
         StateMachine parent = null;
 
         /// <summary>
-        /// 每构造一个状态机, 它在下一帧(下一次运行 StateMachine.Run )就会直接运行起来. <br>
-        /// 可以通过在 Step 函数里写入一些等待的代码.
+        /// 状态机的唯一编号. 
         /// </summary>
+        public Tag tag;
+
+        public abstract IEnumerator<Transfer> Step();
+
         public StateMachine()
         {
-            queues[curQueue].Enqueue(this);
+            tag = new Tag() { value = unchecked(globalTag += 1) };
         }
 
+        StateMachine Inheritance(StateMachine sm)
+        {
+            this.tag = sm.tag;
+            return this;
+        }
         // ============================================================================================================
         // Static storage and maintance
         // ============================================================================================================
+
+        static uint globalTag = 0;
 
         /// <summary>
         /// 状态机的两个执行队列中的第一个.
@@ -100,6 +116,11 @@ namespace Tower.Systems
         /// </summary>
         readonly static Queue<StateMachine> queueB = new Queue<StateMachine>();
 
+        /// <summary>
+        /// 待删除的状态机列表.
+        /// </summary>
+        readonly static HashSet<Tag> removeList = new HashSet<Tag>();
+ 
         /// <summary>
         /// 存两个队列.
         /// </summary>
@@ -119,11 +140,65 @@ namespace Tower.Systems
         }
 
         /// <summary>
+        /// 示意该帧已结束, 等待下一帧.
+        /// </summary>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Transfer Pass() => new Transfer() { type = Transfer.Type.Pass, next = null };
+
+        /// <summary>
+        /// 层次调用新的状态, 新的状态结束后会返回调用处.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Transfer Call(StateMachine x) => new Transfer() { type = Transfer.Type.Call, next = x.Inheritance(this) };
+
+        /// <summary>
+        /// 额外调用一个状态机而不影响自身的执行.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Transfer CallPass(StateMachine x) => new Transfer() { type = Transfer.Type.CallPass, next = x.Inheritance(this) };
+
+        /// <summary>
+        /// 切换到一个新的状态, 不保留原状态.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Transfer Trans(StateMachine x) 
+            => new Transfer() { type = Transfer.Type.Transfer, next = x.Inheritance(this) };
+
+        /// <summary>
+        /// 把状态机注册到全局维护队列中.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="stateMachine"></param>
+        /// <returns></returns>
+        public static T Register<T>(T stateMachine) where T : StateMachine
+        {
+            queues[curQueue].Enqueue(stateMachine);
+            return stateMachine;
+        }
+
+        /// <summary>
+        /// 将该 tag 指向的状态机标记为"待删除".
+        /// </summary>
+        /// <param name="tag"></param>
+        public static void Remove(Tag tag) => removeList.Add(tag);
+
+
+        /// <summary>
+        /// 删除所有被标记为 "待删除" 的状态机.
         /// 让所有状态机往前推进一帧.
         /// </summary>
         /// <param name="x"></param>
         public static void Run()
         {
+            ClearRemove();
+
             var cur = queues[curQueue];
             var nxt = queues[curQueue ^ 1];
             curQueue ^= 1;
@@ -149,7 +224,7 @@ namespace Tower.Systems
 
                     switch(trans.type)
                     {
-                    case Transfer.Type.Step:
+                    case Transfer.Type.Pass:
                     {
                         // Step 操作.
                         // 将 x 放入另一个队列.
@@ -203,6 +278,22 @@ namespace Tower.Systems
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 删除所有被标记为"待删除"的状态机.
+        /// 不会理会那些不存在于队列中, 但是标记为待删除的状态机.
+        /// </summary>
+        static void ClearRemove()
+        {
+            var cur = queues[curQueue];
+            int cnt = cur.Count;
+            for(int i = 0; i < cnt; i++)
+            {
+                var x = cur.Dequeue();
+                if(!removeList.Contains(x.tag)) cur.Enqueue(x);
+            }
+            removeList.Clear();
         }
 
         // ============================================================================================================
