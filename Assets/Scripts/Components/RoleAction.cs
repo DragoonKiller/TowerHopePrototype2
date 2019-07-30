@@ -8,6 +8,8 @@ using Utils;
 
 namespace Tower.Components
 {
+    using Global;
+
     // ============================================================================================================
     // Types
     // ============================================================================================================
@@ -17,7 +19,7 @@ namespace Tower.Components
     /// 角色移动的行为是独立的.
     /// </summary>
     [RequireComponent(typeof(Rigidbody2D))]
-    [System.Serializable]
+    [Serializable]
     public class RoleAction : MonoBehaviour
     {
         sealed class FlyState : StateMachine
@@ -34,7 +36,7 @@ namespace Tower.Components
 
                     t += Time.deltaTime;
                     if(t < role.jumpTimeExpend &&
-                        Input.GetKeyDown(KeyCode.W) &&
+                        CommandQueue.Top(KeyBinding.inst.jump) &&
                         Time.time - role.lastJumpTime > role.jumpTimeExpend)
                     {
                         role.Jump();
@@ -46,29 +48,14 @@ namespace Tower.Components
                         yield return Trans(new MoveState(role));
                     }
 
-                    if(Input.GetKeyDown(KeyCode.Space) && role.rushSkillCreator != null)
-                        role.rushSkillCreator(role);
-                    if(Input.GetKeyDown(KeyCode.Space) && Input.GetKeyDown(KeyCode.LeftShift) && role.rushAdvSkillCreator != null)
-                        role.rushAdvSkillCreator(role);
-                    if(Input.GetKeyDown(KeyCode.Space) && role.primarySkillCreator != null)
-                        role.primarySkillCreator(role);
-                    if(Input.GetKeyDown(KeyCode.Space) && Input.GetKeyDown(KeyCode.LeftShift) && role.primaryAdvSkillCreator != null)
-                        role.primaryAdvSkillCreator(role);
-                    if(Input.GetKeyDown(KeyCode.Space) && role.secondarySkillCreator != null)
-                        role.secondarySkillCreator(role);
-                    if(Input.GetKeyDown(KeyCode.Space) && Input.GetKeyDown(KeyCode.LeftShift) && role.secondaryAdvSkillCreator != null)
-                        role.secondaryAdvSkillCreator(role);
-                    if(Input.GetKeyDown(KeyCode.Space) && role.primaryAttackCreator != null)
-                        role.primaryAttackCreator(role);
-                    if(Input.GetKeyDown(KeyCode.Space) && Input.GetKeyDown(KeyCode.LeftShift) && role.primaryAdvAttackCreator != null)
-                        role.primaryAdvAttackCreator(role);
-                    if(Input.GetKeyDown(KeyCode.Space) && role.secondaryAttackCreator != null)
-                        role.secondaryAttackCreator(role);
-                    if(Input.GetKeyDown(KeyCode.Space) && Input.GetKeyDown(KeyCode.LeftShift) && role.secondaryAdvAttackCreator != null)
-                        role.secondaryAdvAttackCreator(role);
+                    if(CommandQueue.Top(KeyBinding.inst.rush)) role.rushCreator(role);
+                    if(CommandQueue.Top(KeyBinding.inst.primiarySkill)) role.primarySkillCreator(role);
+                    if(CommandQueue.Top(KeyBinding.inst.secondarySkill)) role.secondarySkillCreator(role);
+                    if(CommandQueue.Top(KeyBinding.inst.attack)) role.attackCreator(role);
+                    if(CommandQueue.Top(KeyBinding.inst.magicAttack)) role.magicAttackCreator(role);
 
-                    bool left = Input.GetKey(KeyCode.A);
-                    bool right = Input.GetKey(KeyCode.D);
+                    bool left = CommandQueue.Get(KeyBinding.inst.moveLeft);
+                    bool right = CommandQueue.Get(KeyBinding.inst.moveRight);
                     if(left == right) role.MoveInTheAir(0);
                     else if(left) role.MoveInTheAir(-1);
                     else if(right) role.MoveInTheAir(1);
@@ -87,7 +74,7 @@ namespace Tower.Components
                 {
                     yield return Pass();
 
-                    bool jump = Input.GetKeyDown(KeyCode.W);
+                    bool jump = CommandQueue.Top(KeyBinding.inst.jump);
                     if(jump && Time.time - role.lastJumpTime > role.jumpTimeExpend)
                     {
                         role.Jump();
@@ -102,30 +89,14 @@ namespace Tower.Components
                         }
                     }
 
-
-                    if(Input.GetKeyDown(KeyCode.Space) && role.rushSkillCreator != null)
-                        role.rushSkillCreator(role);
-                    if(Input.GetKeyDown(KeyCode.Space) && Input.GetKeyDown(KeyCode.LeftShift) && role.rushAdvSkillCreator != null)
-                        role.rushAdvSkillCreator(role);
-                    if(Input.GetKeyDown(KeyCode.Space) && role.primarySkillCreator != null)
-                        role.primarySkillCreator(role);
-                    if(Input.GetKeyDown(KeyCode.Space) && Input.GetKeyDown(KeyCode.LeftShift) && role.primaryAdvSkillCreator != null)
-                        role.primaryAdvSkillCreator(role);
-                    if(Input.GetKeyDown(KeyCode.Space) && role.secondarySkillCreator != null)
-                        role.secondarySkillCreator(role);
-                    if(Input.GetKeyDown(KeyCode.Space) && Input.GetKeyDown(KeyCode.LeftShift) && role.secondaryAdvSkillCreator != null)
-                        role.secondaryAdvSkillCreator(role);
-                    if(Input.GetKeyDown(KeyCode.Space) && role.primaryAttackCreator != null)
-                        role.primaryAttackCreator(role);
-                    if(Input.GetKeyDown(KeyCode.Space) && Input.GetKeyDown(KeyCode.LeftShift) && role.primaryAdvAttackCreator != null)
-                        role.primaryAdvAttackCreator(role);
-                    if(Input.GetKeyDown(KeyCode.Space) && role.secondaryAttackCreator != null)
-                        role.secondaryAttackCreator(role);
-                    if(Input.GetKeyDown(KeyCode.Space) && Input.GetKeyDown(KeyCode.LeftShift) && role.secondaryAdvAttackCreator != null)
-                        role.secondaryAdvAttackCreator(role);
-
-                    bool left = Input.GetKey(KeyCode.A);
-                    bool right = Input.GetKey(KeyCode.D);
+                    if(CommandQueue.Top(KeyBinding.inst.rush)) role.rushCreator(role);
+                    if(CommandQueue.Top(KeyBinding.inst.primiarySkill)) role.primarySkillCreator(role);
+                    if(CommandQueue.Top(KeyBinding.inst.secondarySkill)) role.secondarySkillCreator(role);
+                    if(CommandQueue.Top(KeyBinding.inst.attack)) role.attackCreator(role);
+                    if(CommandQueue.Top(KeyBinding.inst.magicAttack)) role.magicAttackCreator(role);
+                    
+                    bool left = CommandQueue.Get(KeyBinding.inst.moveLeft);
+                    bool right = CommandQueue.Get(KeyBinding.inst.moveRight);
                     if(left == right) role.StayOnTheGround();
                     else if(left) role.MoveOnTheGround(-1, role.standingNormal);
                     else if(right) role.MoveOnTheGround(1, role.standingNormal);
@@ -164,16 +135,11 @@ namespace Tower.Components
 
         // 下面是各种技能.
 
-        public Func<RoleAction, Skill> rushSkillCreator;
-        public Func<RoleAction, Skill> rushAdvSkillCreator;
+        public Func<RoleAction, Skill> rushCreator;
         public Func<RoleAction, Skill> primarySkillCreator;
-        public Func<RoleAction, Skill> primaryAdvSkillCreator;
         public Func<RoleAction, Skill> secondarySkillCreator;
-        public Func<RoleAction, Skill> secondaryAdvSkillCreator;
-        public Func<RoleAction, Skill> primaryAttackCreator;
-        public Func<RoleAction, Skill> primaryAdvAttackCreator;
-        public Func<RoleAction, Skill> secondaryAttackCreator;
-        public Func<RoleAction, Skill> secondaryAdvAttackCreator;
+        public Func<RoleAction, Skill> attackCreator;
+        public Func<RoleAction, Skill> magicAttackCreator;
 
         // ============================================================================================================
         // Tool properties
@@ -248,26 +214,6 @@ namespace Tower.Components
         void Start()
         {
             stateTag = StateMachine.Register(new FlyState(this)).tag;
-
-            CommandQueue.BindInterval(
-                attackKey,
-                10,
-                new CommandQueue.Callbacks() {
-                    create = () => "Create!".Log(),
-                    delete = () => "Delete!".Log(),
-                }
-            );
-
-            CommandQueue.BindTimeout(
-                magicAttackKey,
-                0.2f,
-                10,
-                new CommandQueue.Callbacks()
-                {
-                    create = () => "Magic Create!".Log(),
-                    delete = () => "Magic Delete!".Log(),
-                }
-            );
         }
 
         void OnDestroy()

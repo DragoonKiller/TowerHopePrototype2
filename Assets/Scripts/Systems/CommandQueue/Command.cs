@@ -29,9 +29,10 @@ namespace Systems
     {
         Instant = 0,
         Timeout,
-        IntervalCommand,
+        Interval,
     }
     
+    [Serializable]
     public struct CommandKey
     {
         public KeyCode key;
@@ -189,12 +190,12 @@ namespace Systems
                         }
                         else // 否则新建指令, 并触发回调.
                         {
-                            info.callbacks.create();
+                            info.callbacks?.create();
                         }
                         break;
 
                     default:
-                        info.callbacks.create();
+                        info.callbacks?.create();
                         break;
                     }
 
@@ -247,7 +248,7 @@ namespace Systems
                     case Command.Instant xcmd:
                         // Instant 指令应当立即删除.
                         RemoveFromStorage(cmd);
-                        cmd.callbacks.delete();
+                        cmd.callbacks?.delete();
                         break;
 
                     case Command.Timeout xcmd:
@@ -255,7 +256,7 @@ namespace Systems
                         if(xcmd.endTime < Time.time)
                         {
                             RemoveFromStorage(cmd);
-                            cmd.callbacks.delete();
+                            cmd.callbacks?.delete();
                         }
                         break;
 
@@ -264,7 +265,7 @@ namespace Systems
                         if(Input.GetKeyUp(xcmd.key.key))
                         {
                             RemoveFromStorage(cmd);
-                            cmd.callbacks.delete();
+                            cmd.callbacks?.delete();
                         }
                         break;
 

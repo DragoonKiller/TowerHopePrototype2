@@ -59,6 +59,7 @@
      <Compile Include="Assets\Scripts\Components\Environment.cs" />
      <Compile Include="Assets\Scripts\Components\PolyMesh.cs" />
      <Compile Include="Assets\Scripts\Components\RoleAction.cs" />
+     <Compile Include="Assets\Scripts\ScriptObjects\KeyBinding.cs" />
      <Compile Include="Assets\Scripts\Systems\CommandQueue\Command.cs" />
      <Compile Include="Assets\Scripts\Systems\EventSignals\InputSignalProcessor.cs" />
      <Compile Include="Assets\Scripts\Systems\EventSignals\InputSignals.cs" />
