@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using UnityEditor;
+using System;
 using Systems;
 
 namespace Tower.Global
@@ -10,16 +11,12 @@ namespace Tower.Global
     [CustomEditor(typeof(KeyBinding))]
     public class KeyBindingWindow : Editor
     {
+        bool useEnum;
 
         public override void OnInspectorGUI()
         {
             var x = serializedObject.targetObject as KeyBinding;
             if(x == null) return;
-
-            // 构建一个从 Key 到 KeyCode 的枚举表.
-            // var id2key = new Dictionary<int, KeyCode> 
-
-            GUILayout.Label("Key Binding Settings");
 
             var headerStyle = new GUIStyle();
             headerStyle.fontSize = 12;
@@ -30,8 +27,9 @@ namespace Tower.Global
             additionalTagStyle.fontSize = 11;
             additionalTagStyle.alignment = TextAnchor.MiddleRight;
 
-
-            GUILayout.Space(20);
+            GUILayout.Space(8);
+            useEnum = GUILayout.Toggle(useEnum, "use enum for keys", GUILayout.Width(200));
+            GUILayout.Space(8);
 
             // 反射取出 KeyBinding.Setting 变量.
             foreach(var kb in typeof(KeyBinding).GetFields(BindingFlags.Instance | BindingFlags.NonPublic))
@@ -42,7 +40,7 @@ namespace Tower.Global
                 var name = kb.Name;
                 if(name.EndsWith("Setting")) name = name.Remove(name.Length - "Setting".Length);
                 else if(name.EndsWith("Settings")) name = name.Remove(name.Length - "Settings".Length);
-                
+
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Label(name, headerStyle, GUILayout.Width(90));
                 GUILayout.Space(10);
@@ -62,15 +60,21 @@ namespace Tower.Global
                 }
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Space(104);
-                val.key.key = (KeyCode)EditorGUILayout.EnumPopup(val.key.key, GUILayout.MaxWidth(100));
-                GUILayout.Space(10);
-                val.key.ctrl = GUILayout.Toggle(val.key.ctrl, "ctrl", GUILayout.MaxWidth(50));
-                val.key.shift = GUILayout.Toggle(val.key.shift, "shift", GUILayout.MaxWidth(50));
+                if(useEnum)
+                {
+                    val.key = (KeyCode)EditorGUILayout.EnumPopup(val.key, GUILayout.MaxWidth(100));
+                    GUILayout.Space(10);
+                }
+                else
+                {
+                    var newVal = EditorGUILayout.TextField(val.key.ToString(), GUILayout.Width(100));
+                    if(Enum.TryParse<KeyCode>(newVal, true, out var parsedRes)) val.key = parsedRes;
+                    else val.key = KeyCode.None;
+                }
                 EditorGUILayout.EndHorizontal();
-
-                GUILayout.Space(6);
-
+                GUILayout.Space(4);
                 kb.SetValue(x, val);
+
             }
         }
 

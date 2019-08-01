@@ -31,16 +31,6 @@ namespace Systems
         Timeout,
         Interval,
     }
-    
-    [Serializable]
-    public struct CommandKey
-    {
-        public KeyCode key;
-        public bool ctrl;
-        public bool shift;
-        public CommandKey(KeyCode key, bool ctrl, bool shift)
-            => (this.key, this.ctrl, this.shift) = (key, ctrl, shift);
-    }
 
     public static class CommandQueue
     {
@@ -56,7 +46,7 @@ namespace Systems
         abstract class CreateInfo
         {
             public int priority;
-            public CommandKey key;
+            public KeyCode key;
             public Callbacks callbacks;
 
             public abstract Command Create();
@@ -96,7 +86,7 @@ namespace Systems
         {
             public int priority;
             public Callbacks callbacks;
-            public CommandKey key;
+            public KeyCode key;
 
             public sealed class Instant : Command { }
             public sealed class Timeout : Command { public float endTime; }
@@ -106,7 +96,7 @@ namespace Systems
         /// <summary>
         /// 指令生成器.
         /// </summary>
-        readonly static Dictionary<CommandKey, CreateInfo> creators = new Dictionary<CommandKey, CreateInfo>();
+        readonly static Dictionary<KeyCode, CreateInfo> creators = new Dictionary<KeyCode, CreateInfo>();
 
         /// <summary>
         /// 按照顺序排序的指令.
@@ -116,13 +106,14 @@ namespace Systems
         /// <summary>
         /// 使用名称索引的指令.
         /// </summary>
-        readonly static Dictionary<CommandKey, Command> keyCmds = new Dictionary<CommandKey, Command>();
+        readonly static Dictionary<KeyCode, Command> keyCmds = new Dictionary<KeyCode, Command>();
 
         /// <summary>
         /// 把一个玩家输入绑定到一个命令上.
         /// </summary>
-        public static void BindInstant(CommandKey key, int priority, Callbacks callbacks = null)
+        public static void BindInstant(KeyCode key, int priority, Callbacks callbacks = null)
         {
+            if(key == KeyCode.None) return;
             creators.Add(key, new CreateInfo.Instant() {
                 priority = priority,
                 key = key,
@@ -133,8 +124,9 @@ namespace Systems
         /// <summary>
         /// 把一个玩家输入绑定到一个命令上.
         /// </summary>
-        public static void BindTimeout(CommandKey key, float duration, int priority, Callbacks callbacks = null)
+        public static void BindTimeout(KeyCode key, float duration, int priority, Callbacks callbacks = null)
         {
+            if(key == KeyCode.None) return;
             creators.Add(key, new CreateInfo.Timeout() {
                 priority = priority,
                 key = key,
@@ -146,8 +138,9 @@ namespace Systems
         /// <summary>
         /// 把一个玩家输入绑定到一个命令上.
         /// </summary>
-        public static void BindInterval(CommandKey key, int priority, Callbacks callbacks = null)
+        public static void BindInterval(KeyCode key, int priority, Callbacks callbacks = null)
         {
+            if(key == KeyCode.None) return;
             creators.Add(key, new CreateInfo.Interval() {
                 priority = priority,
                 key = key,
@@ -159,56 +152,43 @@ namespace Systems
         /// <summary>
         /// 解除玩家输入对应的绑定.
         /// </summary>
-        public static void Unbind(CommandKey key) => creators.Remove(key);
+        public static bool Unbind(KeyCode key) => creators.Remove(key);
 
         /// <summary>
         /// 创建各种事件.
         /// </summary>
         public static void Create()
         {
-            foreach(KeyCode kb in Enum.GetValues(typeof(KeyCode)))
+            foreach(KeyCode key in Enum.GetValues(typeof(KeyCode)))
             {
-                if(!Input.GetKeyDown(kb)) continue;
-                if(kb == KeyCode.LeftControl || kb == KeyCode.RightControl) continue;
-                if(kb == KeyCode.LeftShift || kb == KeyCode.RightShift) continue;
-                bool ctrl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-                bool shift = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-                bool TryCreateCommand(bool c, bool s)
+                if(!Input.GetKeyDown(key)) continue;
+
+                if(!creators.TryGetValue(key, out var info)) continue;
+                var resCmd = info.Create();
+                switch(resCmd)
                 {
-                    var key = new CommandKey(kb, c, s);
-                    if(!creators.TryGetValue(key, out var info)) return false;
-                    var resCmd = info.Create();
-                    switch(resCmd)
+                case Command.Timeout x:
+                    // 如果这个指令原来就有, 则用新的指令替换它而不触发回调.
+                    var prevCmd = keyCmds.GetOrDefault(info.key, null);
+                    if(prevCmd != null)
                     {
-                    case Command.Timeout x:
-                        // 如果这个指令原来就有, 则用新的指令替换它而不触发回调.
-                        var prevCmd = keyCmds.GetOrDefault(info.key, null);
-                        if(prevCmd != null)
-                        {
-                            sortedCmds[info.priority].Remove(prevCmd);
-                            keyCmds[info.key] = null;
-                        }
-                        else // 否则新建指令, 并触发回调.
-                        {
-                            info.callbacks?.create();
-                        }
-                        break;
-
-                    default:
-                        info.callbacks?.create();
-                        break;
+                        sortedCmds[info.priority].Remove(prevCmd);
+                        keyCmds[info.key] = null;
                     }
+                    else // 否则新建指令, 并触发回调.
+                    {
+                        info.callbacks?.create();
+                    }
+                    break;
 
-                    // 默认的添加操作.
-                    keyCmds[info.key] = resCmd;
-                    sortedCmds.GetOrDefault(info.priority).Add(resCmd);
-
-                    return true;
+                default:
+                    info.callbacks?.create();
+                    break;
                 }
-                if(ctrl && shift && TryCreateCommand(true, true)) continue;
-                if(ctrl && TryCreateCommand(true, false)) continue;
-                if(shift && TryCreateCommand(false, true)) continue;
-                if(TryCreateCommand(false, false)) continue;
+
+                // 默认的添加操作.
+                keyCmds[info.key] = resCmd;
+                sortedCmds.GetOrDefault(info.priority).Add(resCmd);
             }
         }
 
@@ -262,7 +242,7 @@ namespace Systems
 
                     case Command.Interval xcmd:
                         // Interval 指令在接收到对应的 key 之后删除.
-                        if(Input.GetKeyUp(xcmd.key.key))
+                        if(Input.GetKeyUp(xcmd.key))
                         {
                             RemoveFromStorage(cmd);
                             cmd.callbacks?.delete();
@@ -279,13 +259,13 @@ namespace Systems
         /// <summary>
         /// 判断当前队列中是否有该命令.
         /// </summary>
-        public static bool Get(CommandKey key) => keyCmds.GetOrDefault(key, null) != null;
+        public static bool Get(KeyCode key) => keyCmds.GetOrDefault(key, null) != null;
 
 
         /// <summary>
         /// 判断该命令是否处于队头位置.
         /// </summary>
-        public static bool Top(CommandKey key) 
+        public static bool Top(KeyCode key) 
             => keyCmds.GetOrDefault(key, null) != null 
             && sortedCmds.Count != 0 && sortedCmds.First().Value.Contains(keyCmds[key]);
     }

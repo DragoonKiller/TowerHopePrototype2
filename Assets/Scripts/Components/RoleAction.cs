@@ -9,6 +9,7 @@ using Utils;
 namespace Tower.Components
 {
     using Global;
+    using Skills;
 
     // ============================================================================================================
     // Types
@@ -24,8 +25,10 @@ namespace Tower.Components
     {
         sealed class FlyState : StateMachine
         {
-            readonly RoleAction role;
-            public FlyState(RoleAction roleAction) => this.role = roleAction;
+            readonly RoleAction action;
+            Role role => action.role;
+            RoleSkills skills => role.skills;
+            public FlyState(RoleAction roleAction) => this.action = roleAction;
 
             public override IEnumerator<Transfer> Step()
             {
@@ -35,38 +38,49 @@ namespace Tower.Components
                     yield return Pass();
 
                     t += Time.deltaTime;
-                    if(t < role.jumpTimeExpend &&
+                    if(t < action.jumpTimeExpend &&
                         CommandQueue.Top(KeyBinding.inst.jump) &&
-                        Time.time - role.lastJumpTime > role.jumpTimeExpend)
+                        Time.time - action.lastJumpTime > action.jumpTimeExpend)
                     {
-                        role.Jump();
+                        action.Jump();
                         yield return Pass();
                     }
 
-                    if(role.landing)
+                    if(action.landing)
                     {
-                        yield return Trans(new MoveState(role));
+                        yield return Trans(new MoveState(action));
                     }
 
-                    if(CommandQueue.Top(KeyBinding.inst.rush)) role.rushCreator(role);
-                    if(CommandQueue.Top(KeyBinding.inst.primiarySkill)) role.primarySkillCreator(role);
-                    if(CommandQueue.Top(KeyBinding.inst.secondarySkill)) role.secondarySkillCreator(role);
-                    if(CommandQueue.Top(KeyBinding.inst.attack)) role.attackCreator(role);
-                    if(CommandQueue.Top(KeyBinding.inst.magicAttack)) role.magicAttackCreator(role);
+                    if(CommandQueue.Get(KeyBinding.inst.rush) && skills.rushCreator != null)
+                        yield return Call(skills.rushCreator.Create(role));
+
+                    if(CommandQueue.Get(KeyBinding.inst.primarySkill) && skills.primarySkillCreator != null)
+                        yield return Call(skills.primarySkillCreator.Create(role));
+
+                    if(CommandQueue.Get(KeyBinding.inst.secondarySkill) && skills.secondarySkillCreator != null)
+                        yield return Call(skills.secondarySkillCreator.Create(role));
+
+                    if(CommandQueue.Get(KeyBinding.inst.attack) && skills.attackCreator != null)
+                        yield return Call(skills.attackCreator.Create(role));
+
+                    if(CommandQueue.Get(KeyBinding.inst.magicAttack) && skills.attackCreator != null)
+                        yield return Call(skills.magicAttackCreator.Create(role));
 
                     bool left = CommandQueue.Get(KeyBinding.inst.moveLeft);
                     bool right = CommandQueue.Get(KeyBinding.inst.moveRight);
-                    if(left == right) role.MoveInTheAir(0);
-                    else if(left) role.MoveInTheAir(-1);
-                    else if(right) role.MoveInTheAir(1);
+                    if(left == right) action.MoveInTheAir(0);
+                    else if(left) action.MoveInTheAir(-1);
+                    else if(right) action.MoveInTheAir(1);
                 }
             }
         }
 
         sealed class MoveState : StateMachine
         {
-            readonly RoleAction role;
-            public MoveState(RoleAction roleAction) => this.role = roleAction;
+            readonly RoleAction action;
+            Role role => action.role;
+            RoleSkills skills => role.skills;
+            public MoveState(RoleAction roleAction) => this.action = roleAction;
 
             public override IEnumerator<Transfer> Step()
             {
@@ -75,31 +89,40 @@ namespace Tower.Components
                     yield return Pass();
 
                     bool jump = CommandQueue.Top(KeyBinding.inst.jump);
-                    if(jump && Time.time - role.lastJumpTime > role.jumpTimeExpend)
+                    if(jump && Time.time - action.lastJumpTime > action.jumpTimeExpend)
                     {
-                        role.Jump();
-                        yield return Trans(new FlyState(role));
+                        action.Jump();
+                        yield return Trans(new FlyState(action));
                     }
 
-                    if(role.leavingGround)
+                    if(action.leavingGround)
                     {
-                        if(!role.TryAttachGround())
+                        if(!action.TryAttachGround())
                         {
-                            yield return Trans(new FlyState(role));
+                            yield return Trans(new FlyState(action));
                         }
                     }
 
-                    if(CommandQueue.Top(KeyBinding.inst.rush)) role.rushCreator(role);
-                    if(CommandQueue.Top(KeyBinding.inst.primiarySkill)) role.primarySkillCreator(role);
-                    if(CommandQueue.Top(KeyBinding.inst.secondarySkill)) role.secondarySkillCreator(role);
-                    if(CommandQueue.Top(KeyBinding.inst.attack)) role.attackCreator(role);
-                    if(CommandQueue.Top(KeyBinding.inst.magicAttack)) role.magicAttackCreator(role);
+                    if(CommandQueue.Get(KeyBinding.inst.rush) && skills.rushCreator != null)
+                        yield return Call(skills.rushCreator.Create(role));
                     
+                    if(CommandQueue.Get(KeyBinding.inst.primarySkill) && skills.primarySkillCreator != null) 
+                        yield return Call(skills.primarySkillCreator.Create(role));
+
+                    if(CommandQueue.Get(KeyBinding.inst.secondarySkill) && skills.secondarySkillCreator != null)
+                        yield return Call(skills.secondarySkillCreator.Create(role));
+
+                    if(CommandQueue.Get(KeyBinding.inst.attack) && skills.attackCreator != null)
+                        yield return Call(skills.attackCreator.Create(role));
+
+                    if(CommandQueue.Get(KeyBinding.inst.magicAttack) && skills.attackCreator != null)
+                        yield return Call(skills.magicAttackCreator.Create(role));
+
                     bool left = CommandQueue.Get(KeyBinding.inst.moveLeft);
                     bool right = CommandQueue.Get(KeyBinding.inst.moveRight);
-                    if(left == right) role.StayOnTheGround();
-                    else if(left) role.MoveOnTheGround(-1, role.standingNormal);
-                    else if(right) role.MoveOnTheGround(1, role.standingNormal);
+                    if(left == right) action.StayOnTheGround();
+                    else if(left) action.MoveOnTheGround(-1, action.standingNormal);
+                    else if(right) action.MoveOnTheGround(1, action.standingNormal);
                 }
             }
         }
@@ -133,19 +156,13 @@ namespace Tower.Components
         [Tooltip("在跳跃时, 获得一个系数为该变量的额外速度加成.")]
         public float jumpHoriSpeedMult;
 
-        // 下面是各种技能.
+        // 下面是给其它组件使用的部分.
 
-        public Func<RoleAction, Skill> rushCreator;
-        public Func<RoleAction, Skill> primarySkillCreator;
-        public Func<RoleAction, Skill> secondarySkillCreator;
-        public Func<RoleAction, Skill> attackCreator;
-        public Func<RoleAction, Skill> magicAttackCreator;
+        public Role role => GetComponent<Role>();
 
         // ============================================================================================================
         // Tool properties
         // ============================================================================================================
-
-        Rigidbody2D rd => GetComponent<Rigidbody2D>();
 
         // 这些 tag 用于删除状态机.
         StateMachine.Tag stateTag;
@@ -162,7 +179,7 @@ namespace Tower.Components
         {
             get
             {
-                int cnt = rd.GetContacts(contactBuffer);
+                int cnt = role.rd.GetContacts(contactBuffer);
                 return contactBuffer.ToEnumerable(cnt);
             }
         }
@@ -195,18 +212,6 @@ namespace Tower.Components
             }
         }
 
-        CommandKey attackKey = new CommandKey() {
-            key = KeyCode.Mouse0,
-            ctrl = false,
-            shift = false,
-        };
-
-        CommandKey magicAttackKey = new CommandKey() {
-            key = KeyCode.Mouse1,
-            ctrl = false,
-            shift = false,
-        };
-
         // ============================================================================================================
         // Built-in & public methods
         // ============================================================================================================
@@ -219,8 +224,6 @@ namespace Tower.Components
         void OnDestroy()
         {
             StateMachine.Remove(stateTag);
-            CommandQueue.Unbind(attackKey);
-            CommandQueue.Unbind(magicAttackKey);
         }
 
 
@@ -238,7 +241,7 @@ namespace Tower.Components
             if(!leavingGround) return true;
 
             var colliders = new List<Collider2D>();
-            rd.GetAttachedColliders(colliders);
+            role.rd.GetAttachedColliders(colliders);
             var inf = 1e10f;
             var dist = inf;
             foreach(var col in colliders)
@@ -254,7 +257,7 @@ namespace Tower.Components
             }
             if(dist != inf)
             {
-                rd.position += Vector2.down * dist;
+                role.rd.position += Vector2.down * dist;
                 return true;
             }
             return false;
@@ -263,20 +266,20 @@ namespace Tower.Components
         void MoveInTheAir(int dir)
         {
             var targetVx = dir * airHoriSpeed;
-            var curVx = rd.velocity.x;
-            rd.velocity = rd.velocity.X(NextVelocity(curVx, targetVx, airAccRate, Time.deltaTime));
+            var curVx = role.rd.velocity.x;
+            role.rd.velocity = role.rd.velocity.X(NextVelocity(curVx, targetVx, airAccRate, Time.deltaTime));
         }
 
         void StayOnTheGround()
         {
-            rd.velocity = Vector2.zero;
+            role.rd.velocity = Vector2.zero;
         }
 
         void MoveOnTheGround(int dir, Vector2 groundNormal)
         {
             var targetVx = dir * groundHoriSpeed;
-            var curVx = rd.velocity.x * rd.velocity.normalized.Cross(groundNormal.normalized).Abs();
-            rd.velocity = rd.velocity.X(NextVelocity(curVx, targetVx, airAccRate, Time.deltaTime));
+            var curVx = role.rd.velocity.x * role.rd.velocity.normalized.Cross(groundNormal.normalized).Abs();
+            role.rd.velocity = role.rd.velocity.X(NextVelocity(curVx, targetVx, airAccRate, Time.deltaTime));
         }
 
         /// <summary>
@@ -291,9 +294,9 @@ namespace Tower.Components
         {
             lastJumpTime = Time.time;
             // 先处理位移, 保证它在下一帧会离开地面.
-            rd.position += Vector2.up * jumpSpeed * Time.deltaTime;
-            rd.velocity += new Vector2(
-                rd.velocity.x * jumpHoriSpeedMult,
+            role.rd.position += Vector2.up * jumpSpeed * Time.deltaTime;
+            role.rd.velocity += new Vector2(
+                role.rd.velocity.x * jumpHoriSpeedMult,
                 jumpSpeed
             );
         }

@@ -13,13 +13,12 @@ using Systems;
 
 namespace Tower.Global
 {
-    [CreateAssetMenu(fileName = "KeyBinding", menuName = "Global/KeyBinding", order = 199)]
-    public class KeyBinding : ScriptableObject
+    public class KeyBinding : MonoBehaviour
     {
         [Serializable]
         public struct Setting
         {
-            public CommandKey key;
+            public KeyCode key;
             public CommandType type;
 
             [Tooltip("事件优先级. 同时存在的事件将会按照优先级排序.")]
@@ -33,6 +32,8 @@ namespace Tower.Global
 
         // 注意: 命名后缀 Setting 会被反射读取.
 
+        [SerializeField] Setting advancedSkillSetting;
+
         [SerializeField] Setting moveLeftSetting;
         [SerializeField] Setting moveRightSetting;
         [SerializeField] Setting jumpSetting;
@@ -41,7 +42,7 @@ namespace Tower.Global
         [SerializeField] Setting rushSetting;
         [SerializeField] Setting attackSetting;
         [SerializeField] Setting magicAttackSetting;
-        [SerializeField] Setting primiarySkillSetting;
+        [SerializeField] Setting primarySkillSetting;
         [SerializeField] Setting secondarySkillSetting;
 
         [SerializeField] Setting menuSetting;
@@ -49,21 +50,23 @@ namespace Tower.Global
 
         // 注意: 名称需要和 KeySetting 一致, 以便反射读取.
 
-        public CommandKey moveLeft { get; private set; }
-        public CommandKey moveRight { get; private set; }
-        public CommandKey jump { get; private set; }
-        public CommandKey crouch { get; private set; }
+        public KeyCode advancedSkill { get; private set; }
 
-        public CommandKey rush { get; private set; }
-        public CommandKey attack { get; private set; }
-        public CommandKey magicAttack { get; private set; }
-        public CommandKey primiarySkill { get; private set; }
-        public CommandKey secondarySkill { get; private set; }
+        public KeyCode moveLeft { get; private set; }
+        public KeyCode moveRight { get; private set; }
+        public KeyCode jump { get; private set; }
+        public KeyCode crouch { get; private set; }
 
-        public CommandKey menu { get; private set; }
-        public CommandKey inventory { get; private set; }
+        public KeyCode rush { get; private set; }
+        public KeyCode attack { get; private set; }
+        public KeyCode magicAttack { get; private set; }
+        public KeyCode primarySkill { get; private set; }
+        public KeyCode secondarySkill { get; private set; }
 
-        readonly static List<CommandKey> bindedKeys = new List<CommandKey>();
+        public KeyCode menu { get; private set; }
+        public KeyCode inventory { get; private set; }
+
+        readonly static List<KeyCode> bindedKeys = new List<KeyCode>();
 
         public KeyBinding()
         {
