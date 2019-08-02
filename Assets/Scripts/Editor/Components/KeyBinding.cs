@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using System;
 using Systems;
 
@@ -30,6 +31,15 @@ namespace Tower.Global
             GUILayout.Space(8);
             useEnum = GUILayout.Toggle(useEnum, "use enum for keys", GUILayout.Width(200));
             GUILayout.Space(8);
+
+            // 先存储所有 KeyBinding.Setting 变量, 用于检查是否被更改了.
+            var records = new List<KeyBinding.Setting>();
+            foreach(var kb in typeof(KeyBinding).GetFields(BindingFlags.Instance | BindingFlags.NonPublic))
+            {
+                if(kb.FieldType != typeof(KeyBinding.Setting)) continue;
+                var val = (KeyBinding.Setting)kb.GetValue(x);
+                records.Add(val);
+            }
 
             // 反射取出 KeyBinding.Setting 变量.
             foreach(var kb in typeof(KeyBinding).GetFields(BindingFlags.Instance | BindingFlags.NonPublic))
@@ -74,9 +84,20 @@ namespace Tower.Global
                 EditorGUILayout.EndHorizontal();
                 GUILayout.Space(4);
                 kb.SetValue(x, val);
-
             }
-        }
 
+            // 读取所有 KeyBinding.Setting 变量, 和之前存储的作比对, 检查其是否被更改了.
+            int ci = 0;
+            foreach(var kb in typeof(KeyBinding).GetFields(BindingFlags.Instance | BindingFlags.NonPublic))
+            {
+                if(kb.FieldType != typeof(KeyBinding.Setting)) continue;
+                var val = (KeyBinding.Setting)kb.GetValue(x);
+                if(!records[ci++].Equals(val))
+                {
+                    EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+                }
+            }
+
+        }
     }
 }

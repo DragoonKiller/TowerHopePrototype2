@@ -25,6 +25,12 @@ namespace Systems
             public enum Type
             {
                 /// <summary>
+                /// 仅仅把该状态机放到队列最后, 而不执行任何其它的操作.
+                /// 通常是内部使用, 用于处理传入的状态机失效的情况.
+                /// </summary>
+                Yield,
+
+                /// <summary>
                 /// 该帧结束, 执行下一帧.
                 /// </summary>
                 Pass,
@@ -152,7 +158,10 @@ namespace Systems
         /// <param name="x"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Transfer Call(StateMachine x) => new Transfer() { type = Transfer.Type.Call, next = x.Inheritance(this) };
+        public Transfer Call(StateMachine x) => new Transfer() {
+            type = x == null ? Transfer.Type.Yield : Transfer.Type.Call,
+            next = x == null ? null : x.Inheritance(this)
+        };
 
         /// <summary>
         /// 额外调用一个状态机而不影响自身的执行.
@@ -160,7 +169,10 @@ namespace Systems
         /// <param name="x"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Transfer CallPass(StateMachine x) => new Transfer() { type = Transfer.Type.CallPass, next = x.Inheritance(this) };
+        public Transfer CallPass(StateMachine x) => new Transfer() {
+            type = x == null ? Transfer.Type.Yield : Transfer.Type.CallPass,
+            next = x == null ? null : x.Inheritance(this)
+        };
 
         /// <summary>
         /// 切换到一个新的状态, 不保留原状态.
@@ -168,8 +180,10 @@ namespace Systems
         /// <param name="x"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Transfer Trans(StateMachine x) 
-            => new Transfer() { type = Transfer.Type.Transfer, next = x.Inheritance(this) };
+        public Transfer Trans(StateMachine x) => new Transfer() {
+            type = x == null ? Transfer.Type.Yield : Transfer.Type.Transfer,
+            next = x == null ? null : x.Inheritance(this)
+        };
 
         /// <summary>
         /// 把状态机注册到全局维护队列中.
@@ -224,6 +238,13 @@ namespace Systems
 
                     switch(trans.type)
                     {
+                    case Transfer.Type.Yield:
+                    {
+                        // Yield 操作, 将 x 放到队列末尾.
+                        cur.Enqueue(x);
+                        break;
+                    }
+
                     case Transfer.Type.Pass:
                     {
                         // Step 操作.

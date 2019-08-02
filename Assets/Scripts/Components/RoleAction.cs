@@ -35,6 +35,7 @@ namespace Tower.Components
                 float t = 0;
                 while(true)
                 {
+                    "Air".Log();
                     yield return Pass();
 
                     t += Time.deltaTime;
@@ -86,6 +87,7 @@ namespace Tower.Components
             {
                 while(true)
                 {
+                    "Ground".Log();
                     yield return Pass();
 
                     bool jump = CommandQueue.Top(KeyBinding.inst.jump);
@@ -95,13 +97,11 @@ namespace Tower.Components
                         yield return Trans(new FlyState(action));
                     }
 
-                    if(action.leavingGround)
+                    if(!action.TryAttachGround())
                     {
-                        if(!action.TryAttachGround())
-                        {
-                            yield return Trans(new FlyState(action));
-                        }
+                        yield return Trans(new FlyState(action));
                     }
+                    
 
                     if(CommandQueue.Get(KeyBinding.inst.rush) && skills.rushCreator != null)
                         yield return Call(skills.rushCreator.Create(role));
@@ -156,6 +156,9 @@ namespace Tower.Components
         [Tooltip("在跳跃时, 获得一个系数为该变量的额外速度加成.")]
         public float jumpHoriSpeedMult;
 
+        [Tooltip("允许贴地的最大距离.")]
+        public float attachDistance;
+
         // 下面是给其它组件使用的部分.
 
         public Role role => GetComponent<Role>();
@@ -184,12 +187,16 @@ namespace Tower.Components
             }
         }
 
-        bool leavingGround
+        /// <summary>
+        /// 是否触地.
+        /// 接触大于
+        /// </summary>
+        bool touchingGround
         {
             get
             {
-                foreach(var i in contacts) if(InGroundNormalRange(i.normal)) return false;
-                return true;
+                foreach(var i in contacts) if(InGroundNormalRange(i.normal)) return true;
+                return false;
             }
         }
 
@@ -238,7 +245,7 @@ namespace Tower.Components
         /// </summary>
         bool TryAttachGround()
         {
-            if(!leavingGround) return true;
+            if(touchingGround) return true;
 
             var colliders = new List<Collider2D>();
             role.rd.GetAttachedColliders(colliders);
@@ -252,10 +259,11 @@ namespace Tower.Components
                     var origin = this.transform.position.ToVec2() + pt;
                     var hit = Physics2D.Raycast(origin, Vector2.down, inf, LayerMask.GetMask("Terrain"));
                     if(!hit) continue;
+                    if(!InGroundNormalRange(hit.normal)) continue;
                     dist.UpdMin(hit.distance);
                 }
             }
-            if(dist != inf)
+            if(dist < attachDistance)
             {
                 role.rd.position += Vector2.down * dist;
                 return true;
@@ -279,6 +287,7 @@ namespace Tower.Components
         {
             var targetVx = dir * groundHoriSpeed;
             var curVx = role.rd.velocity.x * role.rd.velocity.normalized.Cross(groundNormal.normalized).Abs();
+            if(curVx * targetVx < 0) curVx = 0;
             role.rd.velocity = role.rd.velocity.X(NextVelocity(curVx, targetVx, airAccRate, Time.deltaTime));
         }
 
@@ -288,7 +297,7 @@ namespace Tower.Components
         /// <param name="normal"></param>
         /// <returns></returns>
         bool InGroundNormalRange(Vector2 normal)
-             => Vector2.Angle(normal, Vector2.up) < groundAngle;
+             => Vector2.Angle(normal, Vector2.up) <= groundAngle;
 
         void Jump()
         {

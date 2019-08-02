@@ -16,7 +16,7 @@ namespace Tower.Global
     public class KeyBinding : MonoBehaviour
     {
         [Serializable]
-        public struct Setting
+        public struct Setting : IEquatable<Setting>
         {
             public KeyCode key;
             public CommandType type;
@@ -26,6 +26,14 @@ namespace Tower.Global
 
             [Tooltip("事件的触发时间. 只对 CommandType.Timeout 有效.")]
             public float timeout;
+
+            public bool Equals(Setting other)
+            {
+                return key == other.key
+                    && type == other.type
+                    && priority == other.priority
+                    && timeout == other.timeout;
+            }
         }
 
         public static KeyBinding inst;
