@@ -9,8 +9,9 @@ namespace Tower.Skills
 {
     using Components;
 
-    public interface ISkillCreator
+    public interface ISkillConfig
     {
-        StateMachine Create(Role role);
+
+        bool TryGetState(Role role, out StateMachine stateMachine);
     }
 }

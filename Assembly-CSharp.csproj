@@ -61,9 +61,11 @@
      <Compile Include="Assets\Scripts\Components\PolyMesh.cs" />
      <Compile Include="Assets\Scripts\Components\Role.cs" />
      <Compile Include="Assets\Scripts\Components\RoleAction.cs" />
+     <Compile Include="Assets\Scripts\Components\RoleMagic.cs" />
      <Compile Include="Assets\Scripts\Components\RoleSkills.cs" />
      <Compile Include="Assets\Scripts\Impls\Skills\BaseSkill.cs" />
      <Compile Include="Assets\Scripts\Impls\Skills\WindRush.cs" />
+     <Compile Include="Assets\Scripts\Impls\UI\MagicView.cs" />
      <Compile Include="Assets\Scripts\Systems\CommandQueue\Command.cs" />
      <Compile Include="Assets\Scripts\Systems\EventSignals\InputSignalProcessor.cs" />
      <Compile Include="Assets\Scripts\Systems\EventSignals\InputSignals.cs" />

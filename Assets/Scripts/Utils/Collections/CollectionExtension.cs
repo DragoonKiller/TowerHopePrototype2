@@ -63,86 +63,6 @@ namespace Utils
             for(int i = from; i <= to; i++) ls.Add(i);
         }
 
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Cnt<T>(this T[] s, Predicate<T> f)
-        {
-            int res = 0;
-            foreach(var i in s) if(f(i)) res++;
-            return res;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Cnt<T>(this ICollection<T> s, Predicate<T> f)
-        {
-            int res = 0;
-            foreach(var i in s) if(f(i)) res++;
-            return res;
-        }
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T[] Filter<T>(this T[] s, Predicate<T> f)
-        {
-            int cc = s.Cnt(f);
-            var res = new T[cc];
-            int cx = 0;
-            foreach(var i in s) if(f(i)) res[cx++] = i;
-            return res;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static List<T> Filter<T>(this List<T> s, Predicate<T> f)
-        {
-            var res = new List<T>();
-            foreach(var i in s) if(f(i)) res.Add(i);
-            return res;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T[] Map<T, F>(this F[] s, Func<F, T> f)
-        {
-            var res = new T[s.Length];
-            for(int i = 0; i < s.Length; i++) res[i] = f(s[i]);
-            return res;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static List<T> Map<T, F>(this List<F> s, Func<F, T> f)
-        {
-            var x = new List<T>();
-            foreach(var i in s) x.Add(f(i));
-            return x;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Map<F, T>(this ICollection<F> s, ICollection<T> t, Func<F, T> f)
-        {
-            foreach(var i in s) t.Add(f(i));
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ICollection<T> Fold<F, T>(this ICollection<F> s, ICollection<T> t, Func<ICollection<T>, F, ICollection<T>> f)
-        {
-            foreach(var i in s) t = f(t, i);
-            return t;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IList<T> Fold<F, T>(this IList<F> s, IList<T> t, Func<IList<T>, F, IList<T>> f)
-        {
-            foreach(var i in s) t = f(t, i);
-            return t;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static List<T> Fold<F, T>(this List<F> s, List<T> t, Func<List<T>, F, List<T>> f)
-        {
-            foreach(var i in s) t = f(t, i);
-            return t;
-        }
-
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static List<T> Add<T>(this List<T> x, T a, T b, params T[] c)
         {
@@ -194,6 +114,20 @@ namespace Utils
         {
             for(int i = 0; i < end; i++) yield return arr[i];
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T Last<T>(this List<T> lst)
+        {
+            return lst[lst.Count - 1];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void RemoveLast<T>(this List<T> lst)
+        {
+            lst.RemoveAt(lst.Count - 1);
+        }
+
+
 
     }
 }

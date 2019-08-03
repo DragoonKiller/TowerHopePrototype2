@@ -10,6 +10,7 @@ namespace Tower.Components
         public RoleAction action => this.GetComponent<RoleAction>();
         public Rigidbody2D rd => this.GetComponent<Rigidbody2D>();
         public RoleSkills skills => this.GetComponent<RoleSkills>();
+        public RoleMagic magic => this.GetComponent<RoleMagic>();
     }
 
 }

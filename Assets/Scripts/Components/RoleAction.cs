@@ -19,9 +19,10 @@ namespace Tower.Components
     /// 定义了角色的移动行为.
     /// 角色移动的行为是独立的.
     /// </summary>
+    [RequireComponent(typeof(Role))]
     [RequireComponent(typeof(Rigidbody2D))]
     [Serializable]
-    public class RoleAction : MonoBehaviour
+    public sealed class RoleAction : MonoBehaviour
     {
         sealed class FlyState : StateMachine
         {
@@ -35,7 +36,6 @@ namespace Tower.Components
                 float t = 0;
                 while(true)
                 {
-                    "Air".Log();
                     yield return Pass();
 
                     t += Time.deltaTime;
@@ -47,25 +47,31 @@ namespace Tower.Components
                         yield return Pass();
                     }
 
-                    if(action.landing)
+                    // 在起跳之后的一段时间内, 不能切换为落地状态.
+                    if(action.landing && t > action.jumpTimeExpend)
                     {
                         yield return Trans(new MoveState(action));
                     }
 
-                    if(CommandQueue.Get(KeyBinding.inst.rush) && skills.rushCreator != null)
-                        yield return Call(skills.rushCreator.Create(role));
+                    if(CommandQueue.Get(KeyBinding.inst.rush) && skills.rush != null)
+                        if(skills.rush.TryGetState(role, out var stm))
+                            yield return Call(stm);
 
-                    if(CommandQueue.Get(KeyBinding.inst.primarySkill) && skills.primarySkillCreator != null)
-                        yield return Call(skills.primarySkillCreator.Create(role));
+                    if(CommandQueue.Get(KeyBinding.inst.primarySkill) && skills.primary != null)
+                        if(skills.primary.TryGetState(role, out var stm))
+                            yield return Call(stm);
 
-                    if(CommandQueue.Get(KeyBinding.inst.secondarySkill) && skills.secondarySkillCreator != null)
-                        yield return Call(skills.secondarySkillCreator.Create(role));
+                    if(CommandQueue.Get(KeyBinding.inst.secondarySkill) && skills.secondary != null)
+                            if(skills.secondary.TryGetState(role, out var stm))
+                             yield return Call(stm);
 
-                    if(CommandQueue.Get(KeyBinding.inst.attack) && skills.attackCreator != null)
-                        yield return Call(skills.attackCreator.Create(role));
+                    if(CommandQueue.Get(KeyBinding.inst.attack) && skills.attack != null)
+                        if(skills.attack.TryGetState(role, out var stm))
+                            yield return Call(stm);
 
-                    if(CommandQueue.Get(KeyBinding.inst.magicAttack) && skills.attackCreator != null)
-                        yield return Call(skills.magicAttackCreator.Create(role));
+                    if(CommandQueue.Get(KeyBinding.inst.magicAttack) && skills.attack != null)
+                        if(skills.magicAttack.TryGetState(role, out var stm))
+                            yield return Call(stm);
 
                     bool left = CommandQueue.Get(KeyBinding.inst.moveLeft);
                     bool right = CommandQueue.Get(KeyBinding.inst.moveRight);
@@ -87,36 +93,41 @@ namespace Tower.Components
             {
                 while(true)
                 {
-                    "Ground".Log();
                     yield return Pass();
 
+                    bool attachedGround = action.TryAttachGround();
+
                     bool jump = CommandQueue.Top(KeyBinding.inst.jump);
-                    if(jump && Time.time - action.lastJumpTime > action.jumpTimeExpend)
+                    if(jump && Time.time - action.lastJumpTime > action.jumpTimeExpend && attachedGround)
                     {
                         action.Jump();
                         yield return Trans(new FlyState(action));
                     }
 
-                    if(!action.TryAttachGround())
+                    if(!attachedGround)
                     {
                         yield return Trans(new FlyState(action));
                     }
-                    
 
-                    if(CommandQueue.Get(KeyBinding.inst.rush) && skills.rushCreator != null)
-                        yield return Call(skills.rushCreator.Create(role));
-                    
-                    if(CommandQueue.Get(KeyBinding.inst.primarySkill) && skills.primarySkillCreator != null) 
-                        yield return Call(skills.primarySkillCreator.Create(role));
+                    if(CommandQueue.Get(KeyBinding.inst.rush) && skills.rush != null)
+                        if(skills.rush.TryGetState(role, out var stm))
+                            yield return Call(stm);
 
-                    if(CommandQueue.Get(KeyBinding.inst.secondarySkill) && skills.secondarySkillCreator != null)
-                        yield return Call(skills.secondarySkillCreator.Create(role));
+                    if(CommandQueue.Get(KeyBinding.inst.primarySkill) && skills.primary != null)
+                        if(skills.primary.TryGetState(role, out var stm))
+                            yield return Call(stm);
 
-                    if(CommandQueue.Get(KeyBinding.inst.attack) && skills.attackCreator != null)
-                        yield return Call(skills.attackCreator.Create(role));
+                    if(CommandQueue.Get(KeyBinding.inst.secondarySkill) && skills.secondary != null)
+                        if(skills.secondary.TryGetState(role, out var stm))
+                            yield return Call(stm);
 
-                    if(CommandQueue.Get(KeyBinding.inst.magicAttack) && skills.attackCreator != null)
-                        yield return Call(skills.magicAttackCreator.Create(role));
+                    if(CommandQueue.Get(KeyBinding.inst.attack) && skills.attack != null)
+                        if(skills.attack.TryGetState(role, out var stm))
+                            yield return Call(stm);
+
+                    if(CommandQueue.Get(KeyBinding.inst.magicAttack) && skills.attack != null)
+                        if(skills.magicAttack.TryGetState(role, out var stm))
+                            yield return Call(stm);
 
                     bool left = CommandQueue.Get(KeyBinding.inst.moveLeft);
                     bool right = CommandQueue.Get(KeyBinding.inst.moveRight);
@@ -189,7 +200,6 @@ namespace Tower.Components
 
         /// <summary>
         /// 是否触地.
-        /// 接触大于
         /// </summary>
         bool touchingGround
         {
@@ -285,10 +295,16 @@ namespace Tower.Components
 
         void MoveOnTheGround(int dir, Vector2 groundNormal)
         {
-            var targetVx = dir * groundHoriSpeed;
-            var curVx = role.rd.velocity.x * role.rd.velocity.normalized.Cross(groundNormal.normalized).Abs();
-            if(curVx * targetVx < 0) curVx = 0;
-            role.rd.velocity = role.rd.velocity.X(NextVelocity(curVx, targetVx, airAccRate, Time.deltaTime));
+            var curV = role.rd.velocity;
+            Debug.DrawRay(this.transform.position, groundNormal, Color.red);
+            Debug.DrawRay(this.transform.position, groundNormal.RotHalfPi(), Color.green);
+            Debug.DrawRay(this.transform.position, -groundNormal.RotHalfPi(), Color.blue);
+            var targetV = groundNormal.RotHalfPi().Dot(Vector2.right * dir) > 0f
+                ? groundNormal.RotHalfPi() * groundHoriSpeed
+                : -groundNormal.RotHalfPi() * groundHoriSpeed;
+            Debug.DrawRay(this.transform.position, targetV, Color.black);
+            if(curV.Dot(targetV) < 0f) curV = Vector2.zero;
+            role.rd.velocity = NextVelocity(curV, targetV, groundAccRate, Time.deltaTime);
         }
 
         /// <summary>
@@ -317,7 +333,7 @@ namespace Tower.Components
         //   = (H - C) a^-l (- 2^-a(r-l) + 1 )
         //   = (H - f(l)) (-2^-adt + 1)
         // 所以欧拉插值法用递推式: v(r) = v(l) + (H - v(l)) (1 - 2^-adt)
-        float NextVelocity(float curV, float targetV, float acc, float dt)
-            => curV + (targetV - curV) * (1f - 2.Pow(-acc * dt));
+        float NextVelocity(float curV, float targetV, float acc, float dt) => curV + (targetV - curV) * (1f - 2.Pow(-acc * dt));
+        Vector2 NextVelocity(Vector2 curV, Vector2 targetV, float acc, float dt) => curV + (targetV - curV) * (1f - 2.Pow(-acc * dt));
     }
 }

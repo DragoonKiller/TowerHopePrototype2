@@ -250,10 +250,7 @@ namespace Utils
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2 Reflect(this Vector2 dir, Vector2 dst)
-        {
-            var delta = dst.Cross(dir.normalized);
-            return dst + dir.normalized.RotHalfPi() * delta * 2.0f;
-        }
+            => Vector2.Reflect(dst, dir);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CloseTo(this Vector2 a, Vector2 b) => a.To(b).magnitude.LEZ();
