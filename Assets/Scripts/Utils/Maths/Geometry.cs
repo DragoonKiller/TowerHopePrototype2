@@ -14,7 +14,6 @@ namespace Utils
 
     public static partial class Maths
     {
-
         /// <summary>
         /// 用两个点表示一条直线.
         /// </summary>

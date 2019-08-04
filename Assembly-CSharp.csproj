@@ -63,6 +63,7 @@
      <Compile Include="Assets\Scripts\Components\RoleAction.cs" />
      <Compile Include="Assets\Scripts\Components\RoleMagic.cs" />
      <Compile Include="Assets\Scripts\Components\RoleSkills.cs" />
+     <Compile Include="Assets\Scripts\Components\TerrainMagicStone.cs" />
      <Compile Include="Assets\Scripts\Impls\Skills\BaseSkill.cs" />
      <Compile Include="Assets\Scripts\Impls\Skills\WindRush.cs" />
      <Compile Include="Assets\Scripts\Impls\UI\MagicView.cs" />
@@ -87,9 +88,6 @@
  <Reference Include="Unity.Timeline.Editor">
  <HintPath>G:/TowerHope/TowerHope.Prototype.2/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
  </Reference>
- <Reference Include="com.unity.multiplayer-hlapi.Editor">
- <HintPath>G:/TowerHope/TowerHope.Prototype.2/Library/ScriptAssemblies/com.unity.multiplayer-hlapi.Editor.dll</HintPath>
- </Reference>
  <Reference Include="Unity.TextMeshPro.Editor">
  <HintPath>G:/TowerHope/TowerHope.Prototype.2/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
  </Reference>
@@ -98,9 +96,6 @@
  </Reference>
  <Reference Include="Unity.CollabProxy.Editor">
  <HintPath>G:/TowerHope/TowerHope.Prototype.2/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
- </Reference>
- <Reference Include="com.unity.multiplayer-weaver.Editor">
- <HintPath>G:/TowerHope/TowerHope.Prototype.2/Library/ScriptAssemblies/com.unity.multiplayer-weaver.Editor.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.XR.LegacyInputHelpers">
  <HintPath>G:/TowerHope/TowerHope.Prototype.2/Library/ScriptAssemblies/UnityEngine.XR.LegacyInputHelpers.dll</HintPath>
@@ -119,9 +114,6 @@
  </Reference>
  <Reference Include="UnityEditor.XR.LegacyInputHelpers">
  <HintPath>G:/TowerHope/TowerHope.Prototype.2/Library/ScriptAssemblies/UnityEditor.XR.LegacyInputHelpers.dll</HintPath>
- </Reference>
- <Reference Include="com.unity.multiplayer-hlapi.Runtime">
- <HintPath>G:/TowerHope/TowerHope.Prototype.2/Library/ScriptAssemblies/com.unity.multiplayer-hlapi.Runtime.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.AIModule">
  <HintPath>C:/Program Files/Unity/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>

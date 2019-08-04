@@ -55,23 +55,38 @@ namespace Tower.Components
 
                     if(CommandQueue.Get(KeyBinding.inst.rush) && skills.rush != null)
                         if(skills.rush.TryGetState(role, out var stm))
+                        {
                             yield return Call(stm);
+                            continue;
+                        }
 
                     if(CommandQueue.Get(KeyBinding.inst.primarySkill) && skills.primary != null)
                         if(skills.primary.TryGetState(role, out var stm))
+                        {
                             yield return Call(stm);
+                            continue;
+                        }
 
                     if(CommandQueue.Get(KeyBinding.inst.secondarySkill) && skills.secondary != null)
-                            if(skills.secondary.TryGetState(role, out var stm))
-                             yield return Call(stm);
+                        if(skills.secondary.TryGetState(role, out var stm))
+                        {
+                            yield return Call(stm);
+                            continue;
+                        }
 
                     if(CommandQueue.Get(KeyBinding.inst.attack) && skills.attack != null)
                         if(skills.attack.TryGetState(role, out var stm))
+                        {
                             yield return Call(stm);
+                            continue;
+                        }
 
                     if(CommandQueue.Get(KeyBinding.inst.magicAttack) && skills.attack != null)
                         if(skills.magicAttack.TryGetState(role, out var stm))
+                        {
                             yield return Call(stm);
+                            continue;
+                        }
 
                     bool left = CommandQueue.Get(KeyBinding.inst.moveLeft);
                     bool right = CommandQueue.Get(KeyBinding.inst.moveRight);
@@ -111,23 +126,38 @@ namespace Tower.Components
 
                     if(CommandQueue.Get(KeyBinding.inst.rush) && skills.rush != null)
                         if(skills.rush.TryGetState(role, out var stm))
+                        {
                             yield return Call(stm);
+                            continue;
+                        }
 
                     if(CommandQueue.Get(KeyBinding.inst.primarySkill) && skills.primary != null)
                         if(skills.primary.TryGetState(role, out var stm))
+                        {
                             yield return Call(stm);
+                            continue;
+                        }
 
                     if(CommandQueue.Get(KeyBinding.inst.secondarySkill) && skills.secondary != null)
                         if(skills.secondary.TryGetState(role, out var stm))
+                        {
                             yield return Call(stm);
+                            continue;
+                        }
 
                     if(CommandQueue.Get(KeyBinding.inst.attack) && skills.attack != null)
                         if(skills.attack.TryGetState(role, out var stm))
+                        {
                             yield return Call(stm);
+                            continue;
+                        }
 
                     if(CommandQueue.Get(KeyBinding.inst.magicAttack) && skills.attack != null)
                         if(skills.magicAttack.TryGetState(role, out var stm))
+                        {
                             yield return Call(stm);
+                            continue;
+                        }
 
                     bool left = CommandQueue.Get(KeyBinding.inst.moveLeft);
                     bool right = CommandQueue.Get(KeyBinding.inst.moveRight);
@@ -290,7 +320,7 @@ namespace Tower.Components
 
         void StayOnTheGround()
         {
-            role.rd.velocity = Vector2.zero;
+            role.rd.velocity = role.rd.velocity.X(0f);
         }
 
         void MoveOnTheGround(int dir, Vector2 groundNormal)
