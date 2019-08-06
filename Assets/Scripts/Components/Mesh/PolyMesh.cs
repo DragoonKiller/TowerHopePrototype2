@@ -7,6 +7,8 @@ using static Utils.Algorthms;
 
 namespace Tower.Components
 {
+    using Systems;
+
     /// <summary>
     /// 实时读取 Polygon Collider 数据并生成 mesh.
     /// </summary>
@@ -36,9 +38,23 @@ namespace Tower.Components
         // Unity API函数
         //=====================================================================
 
+        //void Start()
+        //{
+        //    Signal<Signals.PostUpdate>.Listen(Step);
+        //}
+
+        //void OnDestroy()
+        //{
+        //    Signal<Signals.PostUpdate>.Listen(Step);
+        //}
+
+        /// <summary>
+        /// 这个函数要在编辑器中运行.
+        /// </summary>
         void Update()
         {
             if(refresh) ms.mesh = ToMesh(pc);
+
         }
 
         //=====================================================================

@@ -4,6 +4,7 @@ using Utils;
 
 namespace Tower.Components
 {
+    using Systems;
 
     [ExecuteAlways]
     [RequireComponent(typeof(Camera))]
@@ -24,7 +25,17 @@ namespace Tower.Components
         [Header("Info")]
         [SerializeField] public Vector2 localRelativePosition;
 
-        void Update()
+        CameraFollow()
+        {
+            Signal<Signals.PostUpdate>.Listen(Step);
+        }
+
+        void OnDestroy()
+        {
+            Signal<Signals.PostUpdate>.Remove(Step);
+        }
+
+        void Step(Signals.PostUpdate e)
         {
             if(active)
             {
@@ -58,7 +69,7 @@ namespace Tower.Components
 
                 var targetMove = targetPos - clampedPos;
                 var moveDist = targetMove.magnitude * closeRatePerFrame;
-                moveDist.UpdMax(minSpeed * Time.deltaTime);
+                moveDist.UpdMax(minSpeed * e.dt);
                 moveDist.UpdMin(targetMove.magnitude);
 
                 this.transform.position = offset + (Vector3)(clampedPos + targetMove.normalized * moveDist);

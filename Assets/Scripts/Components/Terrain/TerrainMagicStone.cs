@@ -27,15 +27,15 @@ namespace Tower.Components
 
         void Start()
         {
-            Signal<Signals.RenderUpdate>.Listen(Step);
+            Signal<Signals.PostUpdate>.Listen(Step);
         }
 
         void OnDestroy()
         {
-            Signal<Signals.RenderUpdate>.Remove(Step);
+            Signal<Signals.PostUpdate>.Remove(Step);
         }
 
-        void Step(Signals.RenderUpdate e)
+        void Step(Signals.PostUpdate e)
         {
             // 注意该函数会 clear 这个 list.
             cd.GetContacts(contacts);
@@ -79,9 +79,8 @@ namespace Tower.Components
 
         bool TryFullRecover(Role role, Vector2 normal, Vector2 v)
         {
-            // 法线方向是朝内的.
+            // 法线方向是朝内的. 不知道为什么.
             var speed = normal.normalized.Dot(v);
-            if(speed > 1) Debug.Log(speed);
             if(speed >= fullMagicRecoverSpeed)
             {
                 // 直接回复无穷法力. 多余的法力会被 clamp 掉.

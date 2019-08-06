@@ -38,6 +38,12 @@ TagManager:
   - 
   - NoInteraction
   m_SortingLayers:
+  - name: Background
+    uniqueID: 2035594967
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Effect
+    uniqueID: 4289959731
     locked: 0

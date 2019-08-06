@@ -55,7 +55,6 @@ namespace Tower.Skills
                         role.rd.velocity = dir.normalized * data.speed * data.restSpeedCollisionMult;
                         yield break;
                     }
-
                 }
             }
         }

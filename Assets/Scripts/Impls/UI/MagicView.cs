@@ -34,15 +34,15 @@ namespace Tower.UI
 
         void Start()
         {
-            Signal<Signals.RenderUpdate>.Listen(Step);
+            Signal<Signals.PostUpdate>.Listen(Step);
         }
 
         void OnDestroy()
         {
-            Signal<Signals.RenderUpdate>.Remove(Step);
+            Signal<Signals.PostUpdate>.Remove(Step);
         }
 
-        void Step(Signals.RenderUpdate e)
+        void Step(Signals.PostUpdate e)
         {
             if(role == null || role.magic == null)
             {

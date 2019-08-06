@@ -6,10 +6,10 @@ Physics2DSettings:
   serializedVersion: 4
   m_Gravity: {x: 0, y: -8}
   m_DefaultMaterial: {fileID: 6200000, guid: 3b67459c33d105c41b71e164d0f3b34d, type: 2}
-  m_VelocityIterations: 8
-  m_PositionIterations: 6
-  m_VelocityThreshold: 0.2
-  m_MaxLinearCorrection: 0.15
+  m_VelocityIterations: 10
+  m_PositionIterations: 8
+  m_VelocityThreshold: 0.1
+  m_MaxLinearCorrection: 0.12
   m_MaxAngularCorrection: 8
   m_MaxTranslationSpeed: 300
   m_MaxRotationSpeed: 1080
@@ -38,7 +38,7 @@ Physics2DSettings:
     m_IslandSolverJointCostScale: 10
     m_IslandSolverBodiesPerJob: 50
     m_IslandSolverContactsPerJob: 50
-  m_AutoSimulation: 1
+  m_AutoSimulation: 0
   m_QueriesHitTriggers: 1
   m_QueriesStartInColliders: 1
   m_CallbacksOnDisable: 1

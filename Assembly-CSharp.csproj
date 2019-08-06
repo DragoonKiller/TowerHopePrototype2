@@ -55,15 +55,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\Components\CameraFollow.cs" />
-     <Compile Include="Assets\Scripts\Components\Environment.cs" />
-     <Compile Include="Assets\Scripts\Components\KeyBinding.cs" />
-     <Compile Include="Assets\Scripts\Components\PolyMesh.cs" />
-     <Compile Include="Assets\Scripts\Components\Role.cs" />
-     <Compile Include="Assets\Scripts\Components\RoleAction.cs" />
-     <Compile Include="Assets\Scripts\Components\RoleMagic.cs" />
-     <Compile Include="Assets\Scripts\Components\RoleSkills.cs" />
-     <Compile Include="Assets\Scripts\Components\TerrainMagicStone.cs" />
+     <Compile Include="Assets\Scripts\Components\Camera\CameraFollow.cs" />
+     <Compile Include="Assets\Scripts\Components\Global\Environment.cs" />
+     <Compile Include="Assets\Scripts\Components\Global\KeyBinding.cs" />
+     <Compile Include="Assets\Scripts\Components\Mesh\PolyMesh.cs" />
+     <Compile Include="Assets\Scripts\Components\ObjectAnimation\ObjectAnimMagicFlare.cs" />
+     <Compile Include="Assets\Scripts\Components\Role\Role.cs" />
+     <Compile Include="Assets\Scripts\Components\Role\RoleAction.cs" />
+     <Compile Include="Assets\Scripts\Components\Role\RoleMagic.cs" />
+     <Compile Include="Assets\Scripts\Components\Role\RoleSkills.cs" />
+     <Compile Include="Assets\Scripts\Components\Terrain\TerrainMagicStone.cs" />
      <Compile Include="Assets\Scripts\Impls\Skills\BaseSkill.cs" />
      <Compile Include="Assets\Scripts\Impls\Skills\WindRush.cs" />
      <Compile Include="Assets\Scripts\Impls\UI\MagicView.cs" />
@@ -80,6 +81,7 @@
      <Compile Include="Assets\Scripts\Utils\Log\Log.cs" />
      <Compile Include="Assets\Scripts\Utils\Maths\Constants.cs" />
      <Compile Include="Assets\Scripts\Utils\Maths\CoordSys.cs" />
+     <Compile Include="Assets\Scripts\Utils\Maths\Functions.cs" />
      <Compile Include="Assets\Scripts\Utils\Maths\Geometry.cs" />
      <Compile Include="Assets\Scripts\Utils\Maths\SuffixSyntax.cs" />
      <Compile Include="Assets\Scripts\Utils\Nothing\Nothing.cs" />

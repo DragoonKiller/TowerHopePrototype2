@@ -13,13 +13,23 @@ namespace Utils
 
     public static partial class Maths
     {
+        /// <summary>
+        /// 返回数字 x 在剩余系 y 中的值. 这个值恒为非负数.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ModSys(this int i, int mod)
-        {
-            if(i < 0) return i % mod == 0 ? 0 : i % mod + mod;
-            if(i >= mod) return i % mod;
-            return i;
-        }
+        public static int ModSys(this int x, int y) => x < 0 ? x % y + y : x % y;
+
+        /// <summary>
+        /// 返回数字 x 在剩余系 y 中的值. 这个值恒为非负数.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static long ModSys(this long x, long y) => x < 0 ? x % y + y : x % y;
+
+        /// <summary>
+        /// 返回数字 x 在剩余系 y 中的值. 这个值恒为非负数.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float ModSys(this float x, float y) => x < 0 ? x % y + y : x % y;
 
         /// <summary>
         /// 判断两个浮点数相等应当使用一个误差范围.
