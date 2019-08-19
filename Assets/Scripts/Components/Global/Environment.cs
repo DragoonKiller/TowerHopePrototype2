@@ -56,21 +56,7 @@ namespace Tower.Components
             CommandQueue.Create();
             Signal.Emit(new Signals.PreUpdate() { dt = Time.deltaTime * timeMult });
             CommandQueue.Run();
-
-            // 有很严重的失真.
-            // Unity 在渲染方面有自动校正.
-            //if(Physics2D.autoSimulation == false)
-            //{
-            //    physicsTimer += Time.deltaTime;
-            //    while(physicsTimer >= Time.fixedDeltaTime)
-            //    {
-            //        physicsTimer -= Time.fixedDeltaTime;
-            //        Signal.Emit(new Signals.PrePhysicsUpdate() { dt = Time.fixedDeltaTime * timeMult });
-            //        Physics2D.Simulate(Time.fixedDeltaTime * timeMult);
-            //        Signal.Emit(new Signals.PostPhysicsUpdate() { dt = Time.fixedDeltaTime * timeMult });
-            //    }
-            //}
-
+            
             Signal.Emit(new Signals.PrePhysicsUpdate() { dt = Time.deltaTime * timeMult });
             Physics2D.Simulate(Time.deltaTime * timeMult);
             Signal.Emit(new Signals.PostPhysicsUpdate() { dt = Time.deltaTime * timeMult });
