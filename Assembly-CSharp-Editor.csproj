@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\Editor\Components\KeyBinding.cs" />
+     <Compile Include="Assets\Scripts\Editor\Global\SkillTable.cs" />
      <Compile Include="Assets\Scripts\Editor\Utils\UnitTest\UnitTest.cs" />
  <Reference Include="Unity.Timeline.Editor">
  <HintPath>G:/TowerHope/TowerHope.Prototype.2/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>

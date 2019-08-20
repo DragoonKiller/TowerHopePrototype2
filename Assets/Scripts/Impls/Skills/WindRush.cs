@@ -10,15 +10,44 @@ namespace Tower.Skills
 {
     using Tower.Components;
 
+    [Serializable]
     public class WindRush : ISkillConfig
     {
+        [Tooltip("在这个时限之内, 技能不会因为撞墙而中断.")]
         public float preserveTime;
+
+        [Tooltip("法力消耗.")]
         public float magicCost;
+
+        [Tooltip("基础突进速度.")]
         public float speed;
+
+        [Tooltip("基础突进距离.")]
         public float distance;
+
+        [Tooltip("技能结束后, 保留多少倍速度.")]
         public float restSpeedMult;
+
+        [Tooltip("技能因为撞击而结束后, 保留多少倍速度.")]
         public float restSpeedCollisionMult;
-        
+
+
+        public bool TryGetState(Role role, out StateMachine stateMachine)
+        {
+            stateMachine = null;
+
+            if(role.magic == null) return false;
+            if(role.magic.TryUseMagic(magicCost))
+            {
+                stateMachine = new STM() {
+                    data = this,
+                    role = role,
+                };
+                return true;
+            }
+            return false;
+        }
+
         private class STM : StateMachine
         {
             public WindRush data;
@@ -57,22 +86,6 @@ namespace Tower.Skills
                     }
                 }
             }
-        }
-
-        public bool TryGetState(Role role, out StateMachine stateMachine)
-        {
-            stateMachine = null;
-
-            if(role.magic == null) return false;
-            if(role.magic.TryUseMagic(magicCost))
-            {
-                stateMachine = new STM() {
-                    data = this,
-                    role = role,
-                };
-                return true;
-            }
-            return false;
         }
     }
 

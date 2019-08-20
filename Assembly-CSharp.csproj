@@ -58,6 +58,7 @@
      <Compile Include="Assets\Scripts\Components\Camera\CameraFollow.cs" />
      <Compile Include="Assets\Scripts\Components\Global\Environment.cs" />
      <Compile Include="Assets\Scripts\Components\Global\KeyBinding.cs" />
+     <Compile Include="Assets\Scripts\Components\Global\SkillTable.cs" />
      <Compile Include="Assets\Scripts\Components\Mesh\PolyMesh.cs" />
      <Compile Include="Assets\Scripts\Components\ObjectAnimation\ObjectAnimMagicFlare.cs" />
      <Compile Include="Assets\Scripts\Components\Role\Role.cs" />
@@ -65,7 +66,9 @@
      <Compile Include="Assets\Scripts\Components\Role\RoleMagic.cs" />
      <Compile Include="Assets\Scripts\Components\Role\RoleSkills.cs" />
      <Compile Include="Assets\Scripts\Components\Terrain\TerrainMagicStone.cs" />
+     <Compile Include="Assets\Scripts\Impls\Animation\SampleAttackAnimation.cs" />
      <Compile Include="Assets\Scripts\Impls\Skills\BaseSkill.cs" />
+     <Compile Include="Assets\Scripts\Impls\Skills\SampleAttack.cs" />
      <Compile Include="Assets\Scripts\Impls\Skills\WindRush.cs" />
      <Compile Include="Assets\Scripts\Impls\UI\MagicView.cs" />
      <Compile Include="Assets\Scripts\Systems\CommandQueue\Command.cs" />
@@ -73,7 +76,6 @@
      <Compile Include="Assets\Scripts\Systems\EventSignals\InputSignals.cs" />
      <Compile Include="Assets\Scripts\Systems\SignalSystem\Signals.cs" />
      <Compile Include="Assets\Scripts\Systems\SignalSystem\SignalSystem.cs" />
-     <Compile Include="Assets\Scripts\Systems\Skill\SkillSystem.cs" />
      <Compile Include="Assets\Scripts\Systems\StateMachine\StateMachine.cs" />
      <Compile Include="Assets\Scripts\Utils\Algorithm\Geometry.cs" />
      <Compile Include="Assets\Scripts\Utils\Collections\CollectionExtension.cs" />

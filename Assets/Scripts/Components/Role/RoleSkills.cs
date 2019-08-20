@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Tower.Components
 {
+    using Tower.Global;
     using Tower.Skills;
 
     [RequireComponent(typeof(Role))]
@@ -21,14 +22,8 @@ namespace Tower.Components
 
         void Start()
         {
-            rush = new WindRush() {
-                magicCost = 3f,
-                preserveTime = 0.1f,
-                speed = 24f,
-                distance = 4f,
-                restSpeedMult = 0.2f,
-                restSpeedCollisionMult = 0.1f,
-            };
+            rush = SkillTable.inst.windRush;
+            attack = SkillTable.inst.sampleAttack;
         }
     }
 

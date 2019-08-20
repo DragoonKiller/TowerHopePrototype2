@@ -14,8 +14,6 @@ namespace Systems
     {
         public readonly static HashSet<Action<T>> listeners = new HashSet<Action<T>>();
 
-        static int cc = 0;
-
         /// <summary>
         /// 向该信号添加一个回调.
         /// </summary>
@@ -35,8 +33,6 @@ namespace Systems
 
     public static class Signal
     {
-        static int cc = 0;
-
         /// <summary>
         /// 发出该信号并调用函数.
         /// </summary>
