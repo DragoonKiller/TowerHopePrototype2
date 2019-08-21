@@ -106,6 +106,12 @@ namespace Systems
             this.tag = sm.tag;
             return this;
         }
+
+        /// <summary>
+        /// 状态机被清除时应当执行的动作.
+        /// </summary>
+        public virtual void OnExit() { }
+
         // ============================================================================================================
         // Static storage and maintance
         // ============================================================================================================
@@ -283,6 +289,7 @@ namespace Systems
                         // 将 next 放到当前队列执行.
                         var next = trans.next;
                         cur.Enqueue(next);
+                        x.OnExit();
                         break;
                     }
 
@@ -297,12 +304,15 @@ namespace Systems
                         // 注意不是放到当前状态机队列.
                         nxt.Enqueue(x.parent);
                     }
+
+                    // 无论如何, 当前状态机应当删除.
+                    x.OnExit();
                 }
             }
         }
 
         /// <summary>
-        /// 删除所有被标记为"待删除"的状态机.
+        /// 删除所有被主动标记为"待删除"的正在执行的状态机.
         /// 不会理会那些不存在于队列中, 但是标记为待删除的状态机.
         /// </summary>
         static void ClearRemove()
@@ -313,6 +323,7 @@ namespace Systems
             {
                 var x = cur.Dequeue();
                 if(!removeList.Contains(x.tag)) cur.Enqueue(x);
+                else x.OnExit();
             }
             removeList.Clear();
         }

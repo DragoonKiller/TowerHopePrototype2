@@ -40,7 +40,7 @@ namespace Tower.Components
 
                     t += Time.deltaTime;
                     if(t < action.jumpTimeExpend &&
-                        CommandQueue.Top(KeyBinding.inst.jump) &&
+                        CommandQueue.Get(KeyBinding.inst.jump) &&
                         Time.time - action.lastJumpTime > action.jumpTimeExpend)
                     {
                         action.Jump();
@@ -363,7 +363,7 @@ namespace Tower.Components
         //   = (H - C) a^-l (- 2^-a(r-l) + 1 )
         //   = (H - f(l)) (-2^-adt + 1)
         // 所以欧拉插值法用递推式: v(r) = v(l) + (H - v(l)) (1 - 2^-adt)
-        float NextVelocity(float curV, float targetV, float acc, float dt) => curV + (targetV - curV) * (1f - 2.Pow(-acc * dt));
-        Vector2 NextVelocity(Vector2 curV, Vector2 targetV, float acc, float dt) => curV + (targetV - curV) * (1f - 2.Pow(-acc * dt));
+        public float NextVelocity(float curV, float targetV, float acc, float dt) => curV + (targetV - curV) * (1f - 2.Pow(-acc * dt));
+        public Vector2 NextVelocity(Vector2 curV, Vector2 targetV, float acc, float dt) => curV + (targetV - curV) * (1f - 2.Pow(-acc * dt));
     }
 }

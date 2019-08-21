@@ -13,7 +13,9 @@ using Systems;
 
 namespace Tower.Global
 {
-    public class KeyBinding : MonoBehaviour
+    [Serializable]
+    [CreateAssetMenu(fileName = "KeyBinding", menuName = "Global/KeyBinding", order = 10)]
+    public class KeyBinding : ScriptableObject
     {
         [Serializable]
         public struct Setting : IEquatable<Setting>
