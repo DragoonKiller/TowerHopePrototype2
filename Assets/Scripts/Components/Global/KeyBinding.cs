@@ -14,11 +14,10 @@ using Systems;
 namespace Tower.Global
 {
     [Serializable]
-    [CreateAssetMenu(fileName = "KeyBinding", menuName = "Global/KeyBinding", order = 10)]
-    public class KeyBinding : ScriptableObject
+    public class KeyBinding : MonoBehaviour
     {
         [Serializable]
-        public struct Setting : IEquatable<Setting>
+        public class Setting : IEquatable<Setting>
         {
             public KeyCode key;
             public CommandType type;
@@ -90,9 +89,9 @@ namespace Tower.Global
 
             foreach(var cmdSetting in 
                 this.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
-                .Where(x => (x.GetValue(this) as Setting?) != null))
+                .Where(x => x.GetValue(this) as Setting != null))
             {
-                var setting = (Setting)cmdSetting.GetValue(this);
+                var setting = cmdSetting.GetValue(this) as Setting;
                 bindedKeys.Add(setting.key);
 
                 switch(setting.type)

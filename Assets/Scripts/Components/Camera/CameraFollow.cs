@@ -18,7 +18,7 @@ namespace Tower.Components
 
         public float minSpeed;
 
-        [Range(0, 0.5f)] public float limitRatio;
+        [Range(0, 1f)] public float limitRatio;
 
         Camera cam => this.GetComponent<Camera>();
 
@@ -68,7 +68,7 @@ namespace Tower.Components
                 this.transform.position = (Vector3)clampedPos + offset;
 
                 var targetMove = targetPos - clampedPos;
-                var moveDist = targetMove.magnitude * closeRatePerFrame;
+                var moveDist = targetMove.magnitude * (1 - closeRatePerFrame.Pow(e.dt));
                 moveDist.UpdMax(minSpeed * e.dt);
                 moveDist.UpdMin(targetMove.magnitude);
 

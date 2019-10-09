@@ -42,7 +42,6 @@ namespace Tower.Components
         public float timeMult;
 
         public bool editor => Application.isEditor;
-        public bool editorPlaying => UnityEditor.EditorApplication.isPlaying;
         public bool running => Application.isPlaying;
 
         void Start()

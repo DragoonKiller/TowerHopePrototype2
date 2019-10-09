@@ -81,7 +81,7 @@ namespace Utils
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Xmap(this float x, float l, float r, float a, float b) => (x - l) / (r - l) * (b - a) + b;
+        public static float Xmap(this float x, float l, float r, float a, float b) => (x - l) / (r - l) * (b - a) + a;
 
 
 
@@ -218,7 +218,7 @@ namespace Utils
         public static Vector2 ToVec2(this Vector3 a) => new Vector2(a.x, a.y);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3 ToVec3(this Vector3 a) => new Vector3(a.x, a.y, 0f);
+        public static Vector3 ToVec3(this Vector2 a) => new Vector3(a.x, a.y, 0f);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 ToVec3(this Vector3 a, float z) => new Vector3(a.x, a.y, z);

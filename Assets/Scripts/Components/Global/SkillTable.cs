@@ -8,8 +8,7 @@ namespace Tower.Global
     using Tower.Skills;
 
     [Serializable]
-    [CreateAssetMenu(fileName = "SkillTable", menuName = "Global/SkillTable", order = 10)]
-    public class SkillTable : ScriptableObject
+    public class SkillTable : MonoBehaviour
     {
         public static SkillTable inst;
         SkillTable() => inst = this;

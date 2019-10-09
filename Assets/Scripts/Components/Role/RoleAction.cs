@@ -33,61 +33,33 @@ namespace Tower.Components
 
             public override IEnumerator<Transfer> Step()
             {
-                float t = 0;
+                float beginTime = Time.time;
                 while(true)
                 {
                     yield return Pass();
-
-                    t += Time.deltaTime;
-                    if(t < action.jumpTimeExpend &&
+                    float t = Time.time - beginTime;
+                    if(t < action.minJumpTime &&
                         CommandQueue.Get(KeyBinding.inst.jump) &&
-                        Time.time - action.lastJumpTime > action.jumpTimeExpend)
+                        Time.time - action.lastJumpTime > action.minJumpTime)
                     {
                         action.Jump();
                         yield return Pass();
                     }
 
                     // 在起跳之后的一段时间内, 不能切换为落地状态.
-                    if(action.landing && t > action.jumpTimeExpend)
+                    if(action.landing && t > action.minJumpTime)
                     {
                         yield return Trans(new MoveState(action));
                     }
 
-                    if(CommandQueue.Get(KeyBinding.inst.rush) && skills.rush != null)
-                        if(skills.rush.TryGetState(role, out var stm))
-                        {
-                            yield return Call(stm);
-                            continue;
-                        }
+                    // 放技能.
+                    if(role.action.TryUseSkill(this, out var trans))
+                    {
+                        yield return trans;
+                        continue;
+                    }
 
-                    if(CommandQueue.Get(KeyBinding.inst.primarySkill) && skills.primary != null)
-                        if(skills.primary.TryGetState(role, out var stm))
-                        {
-                            yield return Call(stm);
-                            continue;
-                        }
-
-                    if(CommandQueue.Get(KeyBinding.inst.secondarySkill) && skills.secondary != null)
-                        if(skills.secondary.TryGetState(role, out var stm))
-                        {
-                            yield return Call(stm);
-                            continue;
-                        }
-
-                    if(CommandQueue.Get(KeyBinding.inst.attack) && skills.attack != null)
-                        if(skills.attack.TryGetState(role, out var stm))
-                        {
-                            yield return Call(stm);
-                            continue;
-                        }
-
-                    if(CommandQueue.Get(KeyBinding.inst.magicAttack) && skills.attack != null)
-                        if(skills.magicAttack.TryGetState(role, out var stm))
-                        {
-                            yield return Call(stm);
-                            continue;
-                        }
-
+                    // 在空中左右移动.
                     bool left = CommandQueue.Get(KeyBinding.inst.moveLeft);
                     bool right = CommandQueue.Get(KeyBinding.inst.moveRight);
                     if(left == right) action.MoveInTheAir(0);
@@ -112,53 +84,28 @@ namespace Tower.Components
 
                     bool attachedGround = action.TryAttachGround();
 
+                    //起跳.
                     bool jump = CommandQueue.Top(KeyBinding.inst.jump);
-                    if(jump && Time.time - action.lastJumpTime > action.jumpTimeExpend && attachedGround)
+                    if(jump && Time.time - action.lastJumpTime > action.minJumpTime && attachedGround)
                     {
                         action.Jump();
                         yield return Trans(new FlyState(action));
                     }
 
+                    // 走离地面, 或者因环境原因强制离开地面.
                     if(!attachedGround)
                     {
                         yield return Trans(new FlyState(action));
                     }
 
-                    if(CommandQueue.Get(KeyBinding.inst.rush) && skills.rush != null)
-                        if(skills.rush.TryGetState(role, out var stm))
-                        {
-                            yield return Call(stm);
-                            continue;
-                        }
+                    // 放技能.
+                    if(role.action.TryUseSkill(this, out var trans))
+                    {
+                        yield return trans;
+                        continue;
+                    }
 
-                    if(CommandQueue.Get(KeyBinding.inst.primarySkill) && skills.primary != null)
-                        if(skills.primary.TryGetState(role, out var stm))
-                        {
-                            yield return Call(stm);
-                            continue;
-                        }
-
-                    if(CommandQueue.Get(KeyBinding.inst.secondarySkill) && skills.secondary != null)
-                        if(skills.secondary.TryGetState(role, out var stm))
-                        {
-                            yield return Call(stm);
-                            continue;
-                        }
-
-                    if(CommandQueue.Get(KeyBinding.inst.attack) && skills.attack != null)
-                        if(skills.attack.TryGetState(role, out var stm))
-                        {
-                            yield return Call(stm);
-                            continue;
-                        }
-
-                    if(CommandQueue.Get(KeyBinding.inst.magicAttack) && skills.attack != null)
-                        if(skills.magicAttack.TryGetState(role, out var stm))
-                        {
-                            yield return Call(stm);
-                            continue;
-                        }
-
+                    // 在地上左右移动.
                     bool left = CommandQueue.Get(KeyBinding.inst.moveLeft);
                     bool right = CommandQueue.Get(KeyBinding.inst.moveRight);
                     if(left == right) action.StayOnTheGround();
@@ -192,13 +139,17 @@ namespace Tower.Components
         public float groundAngle;
 
         [Tooltip("在离开地面多少秒以后仍然可以跳跃.")]
-        public float jumpTimeExpend;
+        public float minJumpTime;
 
         [Tooltip("在跳跃时, 获得一个系数为该变量的额外速度加成.")]
         public float jumpHoriSpeedMult;
 
         [Tooltip("允许贴地的最大距离.")]
         public float attachDistance;
+
+        [Tooltip("跳跃时长按跳跃键, 重力加速度会被减去这一倍数.")]
+        public float jumpingGravityReduceMult;
+
 
         // 下面是给其它组件使用的部分.
 
@@ -355,6 +306,43 @@ namespace Tower.Components
                 jumpSpeed
             );
         }
+
+
+        /// <summary>
+        /// 工具函数: 检测某个技能并释放.
+        /// </summary>
+        bool TryUseSkill(StateMachine x, out StateMachine.Transfer resTrans)
+        {
+            bool UtilTryUseSkill(ISkillConfig skill, KeyCode key, out StateMachine.Transfer trans)
+            {
+
+                if(CommandQueue.Get(key) && skill != null)
+                    if(skill.TryGetState(role, out var stm))
+                    {
+                        trans = x.Call(stm);
+                        return true;
+                    }
+                trans = new StateMachine.Transfer();
+                return false;
+            }
+
+            var skillList = new List<(ISkillConfig skill, KeyCode key)>() {
+                (role.skills.rush, KeyBinding.inst.rush),
+                (role.skills.primary, KeyBinding.inst.primarySkill),
+                (role.skills.secondary, KeyBinding.inst.secondarySkill),
+                (role.skills.attack, KeyBinding.inst.attack),
+                (role.skills.magicAttack, KeyBinding.inst.magicAttack)
+            };
+
+            foreach(var (skill, key) in skillList)
+            {
+                if(UtilTryUseSkill(skill, key, out resTrans)) return true;
+            }
+
+            resTrans = new StateMachine.Transfer();
+            return false;
+        }
+
 
         // 速度随时间变化公式,其中 H是额定速度,a是功率,C是当前速度:
         // f(t) = H - 2^-at * (H - C)
