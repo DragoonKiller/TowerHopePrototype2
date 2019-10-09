@@ -24,13 +24,52 @@ namespace Tower.Components
     [Serializable]
     public sealed class RoleAction : MonoBehaviour
     {
-        sealed class FlyState : StateMachine
+        abstract class BaseState : StateMachine
         {
-            readonly RoleAction action;
-            Role role => action.role;
-            RoleSkills skills => role.skills;
-            public FlyState(RoleAction roleAction) => this.action = roleAction;
-
+            protected readonly RoleAction action;
+            protected Role role => action.role;
+            protected RoleSkills skills => role.skills;
+            public BaseState(RoleAction roleAction) => this.action = roleAction;
+            
+            /// <summary>
+            /// 工具函数: 尝试施放技能.
+            /// </summary>
+            protected bool TryUseSkill(ISkillConfig skill, KeyCode key, out StateMachine.Transfer trans)
+            {
+                if(CommandQueue.Get(key) && skill != null)
+                {
+                    if(skill.TryGetState(role, out var stm))
+                    {
+                        trans = this.Call(stm);
+                        return true;
+                    }
+                }
+                trans = new StateMachine.Transfer();
+                return false;
+            }
+            
+            /// <summary>
+            /// 工具函数: 检测某个技能并释放.
+            /// </summary>
+            protected bool TryUseAnySkill(out StateMachine.Transfer resTrans)
+            {
+                var skillList = new (ISkillConfig skill, KeyCode key)[] {
+                    // (role.skills.rush, KeyBinding.inst.rush), // 这个技能和跳跃键合并.
+                    (role.skills.primary, KeyBinding.inst.primarySkill),
+                    (role.skills.secondary, KeyBinding.inst.secondarySkill),
+                    (role.skills.attack, KeyBinding.inst.attack),
+                    (role.skills.magicAttack, KeyBinding.inst.magicAttack)
+                };
+                foreach(var (skill, key) in skillList) if(TryUseSkill(skill, key, out resTrans)) return true;
+                resTrans = new StateMachine.Transfer();
+                return false;
+            }
+        }
+        
+        sealed class FlyState : BaseState
+        {
+            public FlyState(RoleAction roleAction) : base(roleAction) { }
+            
             public override IEnumerator<Transfer> Step()
             {
                 float beginTime = Time.time;
@@ -39,7 +78,7 @@ namespace Tower.Components
                     yield return Pass();
                     float t = Time.time - beginTime;
                     if(t < action.minJumpTime &&
-                        CommandQueue.Get(KeyBinding.inst.jump) &&
+                        CommandQueue.Get(KeyBinding.inst.rush) &&
                         Time.time - action.lastJumpTime > action.minJumpTime)
                     {
                         action.Jump();
@@ -51,14 +90,20 @@ namespace Tower.Components
                     {
                         yield return Trans(new MoveState(action));
                     }
-
+                    
+                    // 起跳.
+                    if(TryUseSkill(role.skills.rush, KeyBinding.inst.rush, out var transJump))
+                    {
+                        yield return transJump;
+                    }
+                    
                     // 放技能.
-                    if(role.action.TryUseSkill(this, out var trans))
+                    if(TryUseAnySkill(out var trans))
                     {
                         yield return trans;
                         continue;
                     }
-
+            
                     // 在空中左右移动.
                     bool left = CommandQueue.Get(KeyBinding.inst.moveLeft);
                     bool right = CommandQueue.Get(KeyBinding.inst.moveRight);
@@ -69,13 +114,10 @@ namespace Tower.Components
             }
         }
 
-        sealed class MoveState : StateMachine
+        sealed class MoveState : BaseState
         {
-            readonly RoleAction action;
-            Role role => action.role;
-            RoleSkills skills => role.skills;
-            public MoveState(RoleAction roleAction) => this.action = roleAction;
-
+            public MoveState(RoleAction roleAction) : base(roleAction) { }
+            
             public override IEnumerator<Transfer> Step()
             {
                 while(true)
@@ -85,7 +127,7 @@ namespace Tower.Components
                     bool attachedGround = action.TryAttachGround();
 
                     //起跳.
-                    bool jump = CommandQueue.Top(KeyBinding.inst.jump);
+                    bool jump = CommandQueue.Get(KeyBinding.inst.rush);
                     if(jump && Time.time - action.lastJumpTime > action.minJumpTime && attachedGround)
                     {
                         action.Jump();
@@ -99,7 +141,7 @@ namespace Tower.Components
                     }
 
                     // 放技能.
-                    if(role.action.TryUseSkill(this, out var trans))
+                    if(TryUseAnySkill(out var trans))
                     {
                         yield return trans;
                         continue;
@@ -305,42 +347,6 @@ namespace Tower.Components
                 role.rd.velocity.x * jumpHoriSpeedMult,
                 jumpSpeed
             );
-        }
-
-
-        /// <summary>
-        /// 工具函数: 检测某个技能并释放.
-        /// </summary>
-        bool TryUseSkill(StateMachine x, out StateMachine.Transfer resTrans)
-        {
-            bool UtilTryUseSkill(ISkillConfig skill, KeyCode key, out StateMachine.Transfer trans)
-            {
-
-                if(CommandQueue.Get(key) && skill != null)
-                    if(skill.TryGetState(role, out var stm))
-                    {
-                        trans = x.Call(stm);
-                        return true;
-                    }
-                trans = new StateMachine.Transfer();
-                return false;
-            }
-
-            var skillList = new List<(ISkillConfig skill, KeyCode key)>() {
-                (role.skills.rush, KeyBinding.inst.rush),
-                (role.skills.primary, KeyBinding.inst.primarySkill),
-                (role.skills.secondary, KeyBinding.inst.secondarySkill),
-                (role.skills.attack, KeyBinding.inst.attack),
-                (role.skills.magicAttack, KeyBinding.inst.magicAttack)
-            };
-
-            foreach(var (skill, key) in skillList)
-            {
-                if(UtilTryUseSkill(skill, key, out resTrans)) return true;
-            }
-
-            resTrans = new StateMachine.Transfer();
-            return false;
         }
 
 
