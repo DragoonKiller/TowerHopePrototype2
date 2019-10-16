@@ -6,7 +6,11 @@ namespace Tower.Components
 {
     using Systems;
     using Utils;
-
+    
+    
+    /// <summary>
+    /// 根据鼠标指向位置与 follow 的方向与距离, 调整 target 的位置.
+    /// </summary>
     [ExecuteAlways]
     [RequireComponent(typeof(Camera))]
     public class CameraFollowMouse : MonoBehaviour
@@ -17,7 +21,7 @@ namespace Tower.Components
         public Transform target;
         
         [Tooltip("跟踪对象.")]
-        public Transform following;
+        public Transform follow;
         
         [Tooltip("相机到跟踪对象的垂直距离.")]
         public float height;
@@ -34,7 +38,7 @@ namespace Tower.Components
         [Tooltip("距离偏移的系数曲线.")]
         public AnimationCurve distCurve;
         
-        Vector2 fpos => following.position;
+        Vector2 fpos => follow.position;
         
         CameraFollowMouse()
         {

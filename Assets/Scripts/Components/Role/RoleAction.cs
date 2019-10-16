@@ -17,14 +17,35 @@ namespace Tower.Components
 
     /// <summary>
     /// 定义了角色的移动行为.
-    /// 角色移动的行为是独立的.
     /// </summary>
+    // 需要处理的角色移动机制包括:
+    // * [地面] 在地面上站立不动.
+    // * [地面] 在地面上左右跑动.
+    // * [地面] 在地面上跑动时, 贴地.
+    // * [地面] 在地面施放普通攻击.
+    // * [地面 -> 空中] 从地面跳起, 进入空中.
+    // * [地面 -> 空中] 因为踩空或地形破坏等原因离开地面进入空中.
+    // * [空中] 在空中左右移动.
+    // * [空中] 在空中贴墙移动.
+    // * [空中] 在空中贴墙跳跃.
+    // * [空中 -> 地面] 落地.
+    // * [空中 -> 技能] 在空中施放技能. 技能不能在地面施放.
+    // * [技能 -> 空中] 技能施放完毕后, 回到空中状态或者地面状态, 取决于技能结束时的状态.
+    // 为了实现这些机制, 约定:
+    // 在地面和在空中各使用一个状态机. 每个技能使用一个状态机.
+    // 地面和空中的状态机处理自己的特殊机制, 包括左右移动, 抓地, 抓墙, 转换到另一个状态等.
+    // 技能状态机处理自己的特殊机制.
+    // 技能执行结束时, 其状态机通过 Trans 切换到 地面或空中状态. 一般都是空中状态, 因为不能起跳.
+    // 为了保证最终的手感, 需要额外的机制:
+    // * 空中状态有一个跳跃计数. 从地面起跳变为空中状态, 或者技能结束变为空中状态, 跳跃计数初始化为 0. 
+    //   其它情况离开地面, 空中状态跳跃计数初始化为 1, 一段时间后 -1. 用这个机制实现短时离地起跳. 
+    // * 地面状态有一个"跳跃计数", 跳起后 -1, 放开跳跃键后 +1, 这样能保证长按空格时不会一直跳.
     [RequireComponent(typeof(Role))]
     [RequireComponent(typeof(Rigidbody2D))]
     [Serializable]
     public sealed class RoleAction : MonoBehaviour
     {
-        abstract class BaseState : StateMachine
+        public abstract class BaseState : StateMachine
         {
             protected readonly RoleAction action;
             protected Role role => action.role;
@@ -60,13 +81,14 @@ namespace Tower.Components
                     (role.skills.attack, KeyBinding.inst.attack),
                     (role.skills.magicAttack, KeyBinding.inst.magicAttack)
                 };
+                
                 foreach(var (skill, key) in skillList) if(TryUseSkill(skill, key, out resTrans)) return true;
                 resTrans = new StateMachine.Transfer();
                 return false;
             }
         }
         
-        sealed class FlyState : BaseState
+        public sealed class FlyState : BaseState
         {
             public FlyState(RoleAction roleAction) : base(roleAction) { }
             
@@ -114,7 +136,7 @@ namespace Tower.Components
             }
         }
 
-        sealed class MoveState : BaseState
+        public sealed class MoveState : BaseState
         {
             public MoveState(RoleAction roleAction) : base(roleAction) { }
             
