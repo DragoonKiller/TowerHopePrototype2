@@ -97,7 +97,7 @@ namespace Tower.Skills
                     {
                         t -= data.frameTime;
                         // 没有下一帧了, 结束.
-                        if(!animState.MoveNext()) yield break;
+                        if(!animState.MoveNext()) Trans(new RoleAction.MoveState(role.action));
 
                         // 以该状态帧等待一段时间.
                         // 记录这段时间中的指令.
@@ -112,7 +112,7 @@ namespace Tower.Skills
                             }
 
                             // 当前阶段结束, 而且没有进行下一阶段的指令, 结束.
-                            if(!shouldContinue) yield break;
+                            if(!shouldContinue) Trans(new RoleAction.MoveState(role.action));
                             t -= data.phaseDelay;
                             role.rd.velocity = dir * Vector2.right * role.action.groundHoriSpeed;
                         }

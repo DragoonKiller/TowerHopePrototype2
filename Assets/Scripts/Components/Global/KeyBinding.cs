@@ -56,7 +56,8 @@ namespace Tower.Global
 
         [SerializeField] Setting menuSetting;
         [SerializeField] Setting inventorySetting;
-
+        [SerializeField] Setting minimapSetting;
+        
         // 注意: 名称需要和 KeySetting 一致, 以便反射读取.
 
         public KeyCode advancedSkill { get; private set; }
@@ -74,6 +75,7 @@ namespace Tower.Global
 
         public KeyCode menu { get; private set; }
         public KeyCode inventory { get; private set; }
+        public KeyCode minimap { get; private set; }
 
         readonly static List<KeyCode> bindedKeys = new List<KeyCode>();
 

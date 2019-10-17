@@ -24,15 +24,15 @@ TagManager:
   - 
   - 
   - PlayerControl
-  - 
-  - 
+  - PlayerUI
+  - PlayerFX
   - 
   - NonPlayerControl
   - 
   - 
+  - EnvironmentFX
   - 
-  - 
-  - 
+  - MinimapOnly
   - 
   - 
   - 

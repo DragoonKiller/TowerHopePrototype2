@@ -61,7 +61,7 @@ namespace Tower.Components
                 {
                     if(skill.TryGetState(role, out var stm))
                     {
-                        trans = this.Call(stm);
+                        trans = Trans(stm);
                         return true;
                     }
                 }
@@ -75,7 +75,6 @@ namespace Tower.Components
             protected bool TryUseAnySkill(out StateMachine.Transfer resTrans)
             {
                 var skillList = new (ISkillConfig skill, KeyCode key)[] {
-                    // (role.skills.rush, KeyBinding.inst.rush), // 这个技能和跳跃键合并.
                     (role.skills.primary, KeyBinding.inst.primarySkill),
                     (role.skills.secondary, KeyBinding.inst.secondarySkill),
                     (role.skills.attack, KeyBinding.inst.attack),
@@ -99,14 +98,7 @@ namespace Tower.Components
                 {
                     yield return Pass();
                     float t = Time.time - beginTime;
-                    if(t < action.minJumpTime &&
-                        CommandQueue.Get(KeyBinding.inst.rush) &&
-                        Time.time - action.lastJumpTime > action.minJumpTime)
-                    {
-                        action.Jump();
-                        yield return Pass();
-                    }
-
+                    
                     // 在起跳之后的一段时间内, 不能切换为落地状态.
                     if(action.landing && t > action.minJumpTime)
                     {
@@ -138,6 +130,8 @@ namespace Tower.Components
 
         public sealed class MoveState : BaseState
         {
+            public float leavingGroundTime = 0;
+            
             public MoveState(RoleAction roleAction) : base(roleAction) { }
             
             public override IEnumerator<Transfer> Step()
@@ -148,18 +142,26 @@ namespace Tower.Components
 
                     bool attachedGround = action.TryAttachGround();
 
-                    //起跳.
+                    // 起跳. 不需要前置条件.
                     bool jump = CommandQueue.Get(KeyBinding.inst.rush);
-                    if(jump && Time.time - action.lastJumpTime > action.minJumpTime && attachedGround)
+                    if(jump)
                     {
                         action.Jump();
                         yield return Trans(new FlyState(action));
                     }
 
-                    // 走离地面, 或者因环境原因强制离开地面.
+                    // 走离地面, 或者因环境原因强制离开地面. 过一段时间之后才会转换为飞行状态.
                     if(!attachedGround)
                     {
-                        yield return Trans(new FlyState(action));
+                        leavingGroundTime += Time.deltaTime;
+                        if(leavingGroundTime >= action.minJumpTime)
+                        {
+                            yield return Trans(new FlyState(action));
+                        }
+                    }
+                    else
+                    {
+                        leavingGroundTime = 0;
                     }
 
                     // 放技能.
@@ -218,6 +220,9 @@ namespace Tower.Components
         // 下面是给其它组件使用的部分.
 
         public Role role => GetComponent<Role>();
+        
+        public MoveState GetMoveState() => new MoveState(this);
+        public FlyState GetFlyState() => new FlyState(this);
 
         // ============================================================================================================
         // Tool properties
@@ -225,11 +230,6 @@ namespace Tower.Components
 
         // 这些 tag 用于删除状态机.
         StateMachine.Tag stateTag;
-
-        /// <summary>
-        /// 上次跳跃的时间.
-        /// </summary>
-        float lastJumpTime;
 
         const int maxContactRetrive = 50;
 
@@ -355,14 +355,13 @@ namespace Tower.Components
         /// <summary>
         /// 判定该法线是不是"地面"的法线.
         /// </summary>
-        /// <param name="normal"></param>
-        /// <returns></returns>
-        bool InGroundNormalRange(Vector2 normal)
-             => Vector2.Angle(normal, Vector2.up) <= groundAngle;
-
+        bool InGroundNormalRange(Vector2 normal) => Vector2.Angle(normal, Vector2.up) <= groundAngle;
+        
+        /// <summary>
+        /// 起跳. 设置最后跳跃时间.
+        /// </summary>
         void Jump()
         {
-            lastJumpTime = Time.time;
             // 先处理位移, 保证它在下一帧会离开地面.
             role.rd.position += Vector2.up * jumpSpeed * Time.deltaTime;
             role.rd.velocity += new Vector2(

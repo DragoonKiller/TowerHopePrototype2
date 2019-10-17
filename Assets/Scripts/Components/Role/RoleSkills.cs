@@ -11,7 +11,6 @@ namespace Tower.Components
     public sealed class RoleSkills : MonoBehaviour
     {
         // 下面是各种技能.
-
         public ISkillConfig rush;
         public ISkillConfig primary;
         public ISkillConfig secondary;

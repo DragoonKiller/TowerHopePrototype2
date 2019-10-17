@@ -67,7 +67,7 @@ namespace Tower.Skills
                     if(Time.time - beginTime >= duration)
                     {
                         role.rd.velocity = dir.normalized * data.speed * data.restSpeedMult;
-                        yield break;
+                        yield return Trans(role.action.GetFlyState());
                     }
                     yield return Pass();
                     var ct = role.rd.GetContacts(new ContactFilter2D() {
@@ -82,7 +82,7 @@ namespace Tower.Skills
                     if(Time.time - beginTime > data.preserveTime && ct != 0)
                     {
                         role.rd.velocity = dir.normalized * data.speed * data.restSpeedCollisionMult;
-                        yield break;
+                        yield return Trans(role.action.GetFlyState());
                     }
                 }
             }

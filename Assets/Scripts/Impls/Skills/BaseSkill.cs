@@ -8,7 +8,7 @@ using Systems;
 namespace Tower.Skills
 {
     using Components;
-
+    
     public interface ISkillConfig
     {
         bool TryGetState(Role role, out StateMachine stateMachine);
