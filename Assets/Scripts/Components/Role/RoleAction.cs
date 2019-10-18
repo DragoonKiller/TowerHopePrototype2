@@ -11,10 +11,6 @@ namespace Tower.Components
     using Global;
     using Skills;
 
-    // ============================================================================================================
-    // Types
-    // ============================================================================================================
-
     /// <summary>
     /// 定义了角色的移动行为.
     /// </summary>
@@ -45,6 +41,9 @@ namespace Tower.Components
     [Serializable]
     public sealed class RoleAction : MonoBehaviour
     {
+        
+        #region Types
+
         public abstract class BaseState : StateMachine
         {
             protected readonly RoleAction action;
@@ -130,7 +129,7 @@ namespace Tower.Components
                 }
             }
         }
-
+        
         public sealed class MoveState : BaseState
         {
             public float leavingGroundTime = 0;
@@ -184,10 +183,9 @@ namespace Tower.Components
             }
         }
 
-
+        #endregion
         // ============================================================================================================
-        // Properties
-        // ============================================================================================================
+        #region Properties 
 
         [Tooltip("空中的加比例.")]
         [Range(0, 10)] public float airAccRate;
@@ -204,9 +202,12 @@ namespace Tower.Components
         [Tooltip("跳跃动作产生的向上的速度.")]
         public float jumpSpeed;
 
-        [Tooltip("最大允许的\"地面\"倾角.大于等于这个倾角会被认为不是地面.")]
+        [Tooltip("最大允许的\"地面\"倾角.大于等于这个倾角会被认为不是地面. 单位:角度.")]
         public float groundAngle;
 
+        [Tooltip("与竖直方向的夹角小于等于这个角度会被认为是\"墙壁\". 单位:角度.")]
+        public float wallAngle;
+        
         [Tooltip("在离开地面多少秒以后仍然可以跳跃.")]
         public float minJumpTime;
 
@@ -232,10 +233,10 @@ namespace Tower.Components
         /// </summary>
         public Action<Role> JumpCallbacks = x => { };
         
+        #endregion
         // ============================================================================================================
-        // Tool properties
-        // ============================================================================================================
-
+        #region Tool properties
+        
         // 这些 tag 用于删除状态机.
         StateMachine.Tag stateTag;
 
@@ -282,10 +283,10 @@ namespace Tower.Components
             }
         }
 
+        #endregion
         // ============================================================================================================
-        // Built-in & public methods
-        // ============================================================================================================
-
+        #region Built-in & public methods
+        
         void Start()
         {
             stateTag = StateMachine.Register(new FlyState(this)).tag;
@@ -296,13 +297,12 @@ namespace Tower.Components
             StateMachine.Remove(stateTag);
         }
 
-
+        #endregion
         // ============================================================================================================
-        // Tool methods
-        // ============================================================================================================
+        #region Tool methods
         
         /// <summary>
-        /// 避免惯性导致的短暂的贴地"飞行".
+        /// 强制贴地, 避免惯性导致的短暂的贴地"飞行".
         /// 当角色离地时, 应当检查其是否能够直接贴向地面.
         /// </summary>
         bool TryAttachGround()
@@ -313,6 +313,8 @@ namespace Tower.Components
             role.rd.GetAttachedColliders(colliders);
             var inf = 1e10f;
             var dist = inf;
+            
+            // 收集该角色的所有多边形碰撞盒, 从每个顶点往下打出射线, 取最短的命中距离作为下移的距离.
             foreach(var col in colliders)
             {
                 if(!(col is PolygonCollider2D poly)) continue;
@@ -325,11 +327,13 @@ namespace Tower.Components
                     dist.UpdMin(hit.distance);
                 }
             }
+            
             if(dist < attachDistance)
             {
                 role.rd.position += Vector2.down * dist;
                 return true;
             }
+            
             return false;
         }
 
@@ -398,5 +402,7 @@ namespace Tower.Components
         // 所以欧拉插值法用递推式: v(r) = v(l) + (H - v(l)) (1 - 2^-adt)
         public float NextVelocity(float curV, float targetV, float acc, float dt) => curV + (targetV - curV) * (1f - 2.Pow(-acc * dt));
         public Vector2 NextVelocity(Vector2 curV, Vector2 targetV, float acc, float dt) => curV + (targetV - curV) * (1f - 2.Pow(-acc * dt));
+        
+        #endregion
     }
 }

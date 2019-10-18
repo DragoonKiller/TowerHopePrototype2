@@ -45,12 +45,12 @@ namespace Tower.Components
             // 注意该函数会 clear 这个 list.
             cd.GetContacts(contacts);
             roles.Clear();
-            roles.AddRange(contacts.Select(x => x.collider.gameObject.GetComponent<Role>()).Where(x => x != null));
+            roles.AddRange(contacts.Select(x => x.collider.gameObject.GetComponent<Role>()).Where(x => x != null).Distinct());
             
             var (added, removed) = prevRoles.FowardComapre(roles);
             
-            foreach(var r in added) r.action.JumpCallbacks += FullRecover;
-            foreach(var r in removed) r.action.JumpCallbacks -= FullRecover;
+            foreach(var r in added) r.action.JumpCallbacks += this.FullRecover;
+            foreach(var r in removed) r.action.JumpCallbacks -= this.FullRecover;
             
             // 检查角色的法向速度是否大于给定值.
             // 如果是, 直接回满魔法并触发特效.
