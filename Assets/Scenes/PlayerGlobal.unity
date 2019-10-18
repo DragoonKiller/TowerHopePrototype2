@@ -180,7 +180,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 60178745}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.0028637052, y: -0.19518548, z: 10}
+  m_LocalPosition: {x: 0.0000019073486, y: -0.20009232, z: 10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 835681664}
@@ -319,7 +319,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 96974087}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.81030566, y: -2.0844612, z: -10}
+  m_LocalPosition: {x: 10.523821, y: 28.528711, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -683,15 +683,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   airAccRate: 6
-  airHoriSpeed: 4
+  airHoriSpeed: 5
   groundAccRate: 5
   groundHoriSpeed: 5
-  jumpSpeed: 4.2
+  jumpSpeed: 5
   groundAngle: 25
   minJumpTime: 0.12
   jumpHoriSpeedMult: 0.4
   attachDistance: 0.1
-  jumpingGravityReduceMult: 0.4
+  maxVerticalSpeed: 16
 --- !u!50 &730799953
 Rigidbody2D:
   serializedVersion: 4
@@ -701,7 +701,7 @@ Rigidbody2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 730799951}
   m_BodyType: 0
-  m_Simulated: 1
+  m_Simulated: 0
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
@@ -721,7 +721,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 730799951}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.81030566, y: -2.0844612, z: 0}
+  m_LocalPosition: {x: 10.523821, y: 28.528711, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 636551735}
@@ -816,7 +816,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 730799951}
-  m_Mesh: {fileID: 2002347645}
+  m_Mesh: {fileID: 1972394397}
 --- !u!114 &730799959
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -853,8 +853,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 333129778b8851942b1e34c6d31e8d3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  magic: 5
-  maxMagic: 5
+  magic: 6
+  maxMagic: 6
   recoverRate: 0.5
 --- !u!1 &793281949
 GameObject:
@@ -1071,7 +1071,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 835681661}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.93007773, y: -0.26357752, z: -10}
+  m_LocalPosition: {x: 10.598612, y: 30.46904, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 60178746}
@@ -1093,9 +1093,9 @@ MonoBehaviour:
   active: 1
   target: {fileID: 730799954}
   offsetTarget: {fileID: 60178746}
-  closeRate: 0.08
+  closeRate: 0.01
   offsetCloseRate: 0.3
-  offset: {x: 0.11976381, y: 1.6208851}
+  offset: {x: 0.074798495, y: 1.7403326}
   fixedOffset: {x: 0, y: 0.2, z: -10}
   minSpeed: 0
   limitRatio: 1
@@ -1232,7 +1232,7 @@ MonoBehaviour:
     priority: 5
     timeout: 0.2
   attackSetting:
-    key: 101
+    key: 0
     type: 1
     priority: 4
     timeout: 0.2
@@ -1935,7 +1935,7 @@ TrailRenderer:
   m_MinVertexDistance: 0.04
   m_Autodestruct: 0
   m_Emitting: 1
---- !u!43 &2002347645
+--- !u!43 &1972394397
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

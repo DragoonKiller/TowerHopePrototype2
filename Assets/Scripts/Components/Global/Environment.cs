@@ -53,7 +53,9 @@ namespace Tower.Components
         void Update()
         {
             CommandQueue.Create();
+            
             Signal.Emit(new Signals.PreUpdate() { dt = Time.deltaTime * timeMult });
+            
             CommandQueue.Run();
             
             Signal.Emit(new Signals.PrePhysicsUpdate() { dt = Time.deltaTime * timeMult });
@@ -62,6 +64,7 @@ namespace Tower.Components
 
             StateMachine.Run();
             Signal.Emit(new Signals.PostUpdate() { dt = Time.deltaTime * timeMult });
+            
             CommandQueue.Clear();
         }
 

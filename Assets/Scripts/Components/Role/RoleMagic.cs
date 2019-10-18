@@ -30,9 +30,9 @@ namespace Tower.Components
 
         [Tooltip("环境因素影响的每秒法力回复值.")]
         public float recoverRate;
-
-
-
+        
+        public Role role => this.GetComponent<Role>();
+        
         public bool TryUseMagic(float amount)
         {
             if(magic > amount)
@@ -43,6 +43,9 @@ namespace Tower.Components
             return false;
         }
 
+        /// <summary>
+        /// 回复给定值的法力.
+        /// </summary>
         public bool RecoverMagic(float amount)
         {
             if(amount < 0f) return false;
@@ -60,7 +63,7 @@ namespace Tower.Components
         {
             Signal<Signals.PostUpdate>.Remove(Step);
         }
-
+        
         void Step(Signals.PostUpdate e)
         {
             RecoverMagic(e.dt * recoverRate);

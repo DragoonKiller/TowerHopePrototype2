@@ -11,6 +11,16 @@ namespace Tower.Components
         public Rigidbody2D rd => this.GetComponent<Rigidbody2D>();
         public RoleSkills skills => this.GetComponent<RoleSkills>();
         public RoleMagic magic => this.GetComponent<RoleMagic>();
+        
+        public void Start()
+        {
+            rd.simulated = true;
+        }
+        
+        public void OnDestroy()
+        {
+            rd.simulated = false;
+        }
     }
 
 }

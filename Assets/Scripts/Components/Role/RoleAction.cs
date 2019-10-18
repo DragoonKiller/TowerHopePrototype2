@@ -105,7 +105,7 @@ namespace Tower.Components
                         yield return Trans(new MoveState(action));
                     }
                     
-                    // 起跳.
+                    // 冲刺.
                     if(TryUseSkill(role.skills.rush, KeyBinding.inst.rush, out var transJump))
                     {
                         yield return transJump;
@@ -124,6 +124,9 @@ namespace Tower.Components
                     if(left == right) action.MoveInTheAir(0);
                     else if(left) action.MoveInTheAir(-1);
                     else if(right) action.MoveInTheAir(1);
+                    
+                    // 限制竖直速度.
+                    role.rd.velocity = role.rd.velocity.Y(role.rd.velocity.y.Clamp(-role.action.maxVerticalSpeed, role.action.maxVerticalSpeed));
                 }
             }
         }
@@ -212,18 +215,23 @@ namespace Tower.Components
 
         [Tooltip("允许贴地的最大距离.")]
         public float attachDistance;
-
-        [Tooltip("跳跃时长按跳跃键, 重力加速度会被减去这一倍数.")]
-        public float jumpingGravityReduceMult;
-
-
-        // 下面是给其它组件使用的部分.
-
+        
+        [Tooltip("最大竖直速度.")]
+        public float maxVerticalSpeed;
+        
+        
+        
         public Role role => GetComponent<Role>();
         
         public MoveState GetMoveState() => new MoveState(this);
+        
         public FlyState GetFlyState() => new FlyState(this);
-
+        
+        /// <summary>
+        /// 起跳事件的回调函数.
+        /// </summary>
+        public Action<Role> JumpCallbacks = x => { };
+        
         // ============================================================================================================
         // Tool properties
         // ============================================================================================================
@@ -292,8 +300,7 @@ namespace Tower.Components
         // ============================================================================================================
         // Tool methods
         // ============================================================================================================
-
-
+        
         /// <summary>
         /// 避免惯性导致的短暂的贴地"飞行".
         /// 当角色离地时, 应当检查其是否能够直接贴向地面.
@@ -326,18 +333,27 @@ namespace Tower.Components
             return false;
         }
 
+        /// <summary>
+        /// 在空气中进行左右移动. 默认 dir = 1 为右.
+        /// </summary>
         void MoveInTheAir(int dir)
         {
             var targetVx = dir * airHoriSpeed;
             var curVx = role.rd.velocity.x;
             role.rd.velocity = role.rd.velocity.X(NextVelocity(curVx, targetVx, airAccRate, Time.deltaTime));
         }
-
+        
+        /// <summary>
+        /// 强制主角停止在地面上.
+        /// </summary>
         void StayOnTheGround()
         {
             role.rd.velocity = role.rd.velocity.X(0f);
         }
-
+        
+        /// <summary>
+        /// 在地面移动 默认 dir = 1 为右. 校正移动速度的方向为地面的切线方向.
+        /// </summary>
         void MoveOnTheGround(int dir, Vector2 groundNormal)
         {
             var curV = role.rd.velocity;
@@ -358,10 +374,12 @@ namespace Tower.Components
         bool InGroundNormalRange(Vector2 normal) => Vector2.Angle(normal, Vector2.up) <= groundAngle;
         
         /// <summary>
-        /// 起跳. 设置最后跳跃时间.
+        /// 起跳.
         /// </summary>
         void Jump()
         {
+            JumpCallbacks?.Invoke(role);
+            
             // 先处理位移, 保证它在下一帧会离开地面.
             role.rd.position += Vector2.up * jumpSpeed * Time.deltaTime;
             role.rd.velocity += new Vector2(
@@ -371,7 +389,7 @@ namespace Tower.Components
         }
 
 
-        // 速度随时间变化公式,其中 H是额定速度,a是功率,C是当前速度:
+        // 速度随时间变化公式, 其中 H是额定速度, a是功率, C是当前速度:
         // f(t) = H - 2^-at * (H - C)
         // 就有:
         // f(r) - f(l) = (H - C) (- 2^-ar + 2^-al)

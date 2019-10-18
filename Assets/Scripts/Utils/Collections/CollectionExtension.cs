@@ -127,7 +127,15 @@ namespace Utils
             lst.RemoveAt(lst.Count - 1);
         }
 
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static (List<T> added, List<T> removed) FowardComapre<T>(this ICollection<T> a, ICollection<T> b)
+        {
+            var added = new List<T>();
+            var removed = new List<T>();
+            foreach(var i in a) if(!b.Contains(i)) removed.Add(i);
+            foreach(var i in b) if(!a.Contains(i)) added.Add(i);
+            return (added, removed);
+        }
 
     }
 }
