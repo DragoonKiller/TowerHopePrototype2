@@ -18,13 +18,16 @@ namespace Tower.Skills
 
         [Tooltip("法力消耗.")]
         public float magicCost;
+        
+        [Tooltip("突进的速度-时间曲线.")]
+        public AnimationCurve curve;
 
+        [Tooltip("基础突进时间.")]
+        public float duration;
+        
         [Tooltip("基础突进速度.")]
         public float speed;
-
-        [Tooltip("基础突进距离.")]
-        public float distance;
-
+        
         [Tooltip("技能结束后, 保留多少倍速度.")]
         public float restSpeedMult;
 
@@ -58,27 +61,30 @@ namespace Tower.Skills
             {
                 var from = role.transform.position.ToVec2();
                 var dir = ExCursor.worldPos - from;
-                dir.Len(dir.magnitude.Min(data.distance));
-                var duration = data.distance / data.speed;
                 var beginTime = Time.time;
                 Debug.DrawLine(from, from + dir);
                 while(true)
                 {
-                    if(Time.time - beginTime >= duration)
+                    // 如果超时了, 把速度设置到基础速度的一个倍数, 然后退出.
+                    if(Time.time - beginTime >= data.duration)
                     {
                         role.rd.velocity = dir.normalized * data.speed * data.restSpeedMult;
                         yield return Trans(role.action.GetFlyState());
                     }
+                    
                     yield return Pass();
+                    
                     var ct = role.rd.GetContacts(new ContactFilter2D() {
                         layerMask = LayerMask.GetMask("Terrain")
                     }, res);
-
                     
-                    var nextV = dir.normalized * data.speed ;
+                    var rate = (Time.time - beginTime) / data.duration;
+                    var nextV = data.curve.Evaluate(rate) * data.speed * dir.normalized;
                     role.rd.velocity = nextV;
-
-                    // 在该时限之外, 如果撞到了东西, 结束...
+                    
+                    DebugDraw.Circle(role.transform.position, data.curve.Integral(rate, 1.0f) * data.speed * data.duration, Color.red);
+                    
+                    // 如果撞到了东西, 结束...
                     if(Time.time - beginTime > data.preserveTime && ct != 0)
                     {
                         role.rd.velocity = dir.normalized * data.speed * data.restSpeedCollisionMult;
