@@ -237,9 +237,6 @@ namespace Utils
         public static Vector2 Len(this Vector2 a, float z) => a.normalized * z;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector2 Angle(this Vector2 a, float v) => a.normalized.Rot(v);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2 Dir(this (Vector2 from, Vector2 to) a) => a.from.To(a.to);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

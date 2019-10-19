@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 
 using Systems;
 using Utils;
@@ -90,24 +91,25 @@ namespace Tower.Components
         {
             public FlyState(RoleAction roleAction) : base(roleAction) { }
             
+            /// <summary>
+            /// 抓墙时限. 墙跳后一段时间内不允许再抓墙.
+            /// </summary>
+            float grabWallCooldownTimer;
+            
             public override IEnumerator<Transfer> Step()
             {
                 float beginTime = Time.time;
+                grabWallCooldownTimer = 0f;
                 while(true)
                 {
                     yield return Pass();
                     float t = Time.time - beginTime;
+                    grabWallCooldownTimer = (grabWallCooldownTimer - Time.deltaTime).Max(0f);
                     
                     // 在起跳之后的一段时间内, 不能切换为落地状态.
-                    if(action.landing && t > action.minJumpTime)
+                    if(action.touchingGround && t > action.minJumpTime)
                     {
                         yield return Trans(new MoveState(action));
-                    }
-                    
-                    // 冲刺.
-                    if(TryUseSkill(role.skills.rush, KeyBinding.inst.rush, out var transJump))
-                    {
-                        yield return transJump;
                     }
                     
                     // 放技能.
@@ -120,9 +122,35 @@ namespace Tower.Components
                     // 在空中左右移动.
                     bool left = CommandQueue.Get(KeyBinding.inst.moveLeft);
                     bool right = CommandQueue.Get(KeyBinding.inst.moveRight);
-                    if(left == right) action.MoveInTheAir(0);
-                    else if(left) action.MoveInTheAir(-1);
-                    else if(right) action.MoveInTheAir(1);
+                    
+                    // 尝试抓墙.
+                    var grabDir = 0;
+                    if(grabWallCooldownTimer == 0f) grabDir = action.TryAttachWall();
+                    
+                    // 如果抓墙方向和当前按键方向不一致, 或者当前没有抓墙, 则处理在空中的移动.
+                    if(!((left && grabDir == -1) || (right && grabDir == 1)))
+                    {
+                        if(left == right && grabDir == 0) action.MoveInTheAir(0);
+                        else if(left) action.MoveInTheAir(-1);
+                        else if(right) action.MoveInTheAir(1);
+                    }
+                    
+                    // 冲刺和跳跃是同一个按键.
+                    if(CommandQueue.Get(KeyBinding.inst.rush))
+                    {
+                        // 如果抓墙成功, 那么支持墙跳.
+                        if(grabDir != 0)
+                        {
+                            grabWallCooldownTimer = role.action.grabWallCooldown;
+                            role.action.WallJump(grabDir);
+                        }
+                        
+                        // 否则, 处理冲刺.
+                        else if(TryUseSkill(role.skills.rush, KeyBinding.inst.rush, out var transJump))
+                        {
+                            yield return transJump;
+                        }
+                    }
                     
                     // 限制竖直速度.
                     role.rd.velocity = role.rd.velocity.Y(role.rd.velocity.y.Clamp(-role.action.maxVerticalSpeed, role.action.maxVerticalSpeed));
@@ -141,12 +169,11 @@ namespace Tower.Components
                 while(true)
                 {
                     yield return Pass();
-
+                    
                     bool attachedGround = action.TryAttachGround();
 
                     // 起跳. 不需要前置条件.
-                    bool jump = CommandQueue.Get(KeyBinding.inst.rush);
-                    if(jump)
+                    if(CommandQueue.Get(KeyBinding.inst.rush))
                     {
                         action.Jump();
                         yield return Trans(new FlyState(action));
@@ -201,7 +228,19 @@ namespace Tower.Components
 
         [Tooltip("跳跃动作产生的向上的速度.")]
         public float jumpSpeed;
-
+        
+        [Tooltip("墙跳速度.")]
+        public float wallJumpSpeed;
+        
+        [Tooltip("墙跳减速倍率.")]
+        public float wallJumpSpeedMult;
+        
+        [Tooltip("成功抓墙时的目标速度.")]
+        public float grabWallMaxSpeed;
+        
+        [Tooltip("墙跳后这么长时间内不允许再抓墙.")]
+        public float grabWallCooldown;
+        
         [Tooltip("最大允许的\"地面\"倾角.大于等于这个倾角会被认为不是地面. 单位:角度.")]
         public float groundAngle;
 
@@ -215,7 +254,10 @@ namespace Tower.Components
         public float jumpHoriSpeedMult;
 
         [Tooltip("允许贴地的最大距离.")]
-        public float attachDistance;
+        public float attachGroundDist;
+        
+        [Tooltip("允许抓墙的最大距离.")]
+        public float grabWallDist;
         
         [Tooltip("最大竖直速度.")]
         public float maxVerticalSpeed;
@@ -255,34 +297,21 @@ namespace Tower.Components
         /// <summary>
         /// 是否触地.
         /// </summary>
-        bool touchingGround
-        {
-            get
-            {
-                foreach(var i in contacts) if(InGroundNormalRange(i.normal)) return true;
-                return false;
-            }
-        }
-
-        bool landing
-        {
-            get
-            {
-                int cc = 0;
-                foreach(var i in contacts) if(InGroundNormalRange(i.normal)) cc++;
-                return cc > 0;
-            }
-        }
-
-        Vector2 standingNormal
-        {
-            get
-            {
-                foreach(var i in contacts) Debug.DrawRay(i.point, i.normal, Color.red);
-                return Vector2.up;
-            }
-        }
-
+        bool touchingGround => contacts.Aggregate(false, (a, x) => a || InGroundNormalRange(x.normal));
+        
+        /// <summary>
+        /// 是否触墙.
+        /// </summary>
+        bool touchingWall => contacts.Aggregate(false, (a, x) => a || InWallNormalRange(x.normal));
+        
+        /// <summary>
+        /// 目前所站位置的地面法线. 取离竖直向上的方向最近的接触点向量.
+        /// </summary>
+        Vector2 standingNormal => contacts.Aggregate(
+            Vector2.down, 
+            (a, x) => Vector2.Angle(Vector2.up, a) < Vector2.Angle(Vector2.up, x.normal) ? a : x.normal 
+        );
+        
         #endregion
         // ============================================================================================================
         #region Built-in & public methods
@@ -301,20 +330,116 @@ namespace Tower.Components
         // ============================================================================================================
         #region Tool methods
         
+
+        /// <summary>
+        ///  收集该角色的所有多边形碰撞盒, 从每个顶点往下打出射线, 取最短的命中距离作为下移的距离.
+        /// 顺便记录平均法线, 用于后续操作.
+        /// 返回向量的方向表示[平均法线方向, 返回的长度表示离表面的距离.
+        /// </summary>
+        (Vector2? left, Vector2? right) GetWallAttachInfo()
+        {
+            var colliders = new List<Collider2D>();
+            role.rd.GetAttachedColliders(colliders);
+            const float inf = 1e10f;
+            var (leftDist, rightDist) = (inf, inf);
+            var (leftSum, rightSum) = (Vector2.zero, Vector2.zero);
+            var (leftCnt, rightCnt) = (0, 0);
+            foreach(var col in colliders)
+            {
+                if(!(col is PolygonCollider2D poly)) continue;
+                foreach(var pt in poly.GetPath(0))
+                {
+                    var origin = this.transform.position.ToVec2() + pt;
+                    var (leftHit, rightHit) = (
+                        Physics2D.Raycast(origin, Vector2.left, grabWallDist, LayerMask.GetMask("Terrain")),
+                        Physics2D.Raycast(origin, Vector2.right, grabWallDist, LayerMask.GetMask("Terrain"))
+                    );
+                    if(leftHit)
+                    {
+                        leftDist.UpdMin(leftHit.distance);
+                        leftSum += leftHit.normal;
+                        leftCnt += 1;
+                    }
+                    if(rightHit)
+                    {
+                        rightDist.UpdMin(rightHit.distance);
+                        rightSum += rightHit.normal;
+                        rightCnt += 1;
+                    }
+                }
+            }
+            return (
+                leftCnt == 0 ? (Vector2?)null : (leftSum / leftCnt).normalized * leftDist,
+                rightCnt == 0 ? (Vector2?)null : (rightSum / rightCnt).normalized * rightDist
+            );
+        }
+        
+        /// <summary>
+        /// 墙跳动作. 数值速度减半, 朝法线方向跳跃.
+        /// 如果两边都有触墙, 什么都不做.
+        /// </summary>
+        void WallJump(int dir)
+        {
+            var (leftAttach, rightAttach) = GetWallAttachInfo();
+            if(leftAttach.HasValue && rightAttach.HasValue) return;
+            
+            var jumpDir = leftAttach.HasValue ? leftAttach.Value.normalized : rightAttach.Value.normalized;
+            
+            role.rd.velocity = role.rd.velocity * wallJumpSpeedMult + jumpDir * wallJumpSpeed;
+        }
+        
+        
+        /// <summary>
+        /// 尝试抓墙.
+        /// dir 返回 -1 表示墙在左边, 1 表示墙在右边. 失败, 或者已经接触墙壁, 则返回 0.
+        /// </summary>
+        int TryAttachWall()
+        {
+            // 判断应该向哪个方向贴墙.
+            int attachDir = 0;
+            var (leftAttach, rightAttach) = GetWallAttachInfo();
+            
+            // 取方向.
+            if(leftAttach.HasValue && rightAttach.HasValue) attachDir = UnityEngine.Random.Range(0, 1) * 2 - 1;
+            else if(leftAttach.HasValue) attachDir = -1;
+            else if(rightAttach.HasValue) attachDir = 1;
+            else return 0;
+            
+            Debug.Assert(attachDir != 0);
+            
+            // 贴墙操作.
+            float attachDist = leftAttach != null ? leftAttach.Value.magnitude : rightAttach.Value.magnitude;
+            role.rd.position += attachDir * attachDist * Vector2.right;
+            
+            // 把速度改换成沿着墙面切线的方向, 以保证在结束抓墙时的速度顺着墙的切线方向.
+            var normal = leftAttach != null ? leftAttach.Value.normalized : rightAttach.Value.normalized;
+            var tangent = normal.RotHalfPi();
+            if(role.rd.velocity.Dot(tangent) > 0) role.rd.velocity = role.rd.velocity.magnitude * tangent;
+            else role.rd.velocity = role.rd.velocity.magnitude * -tangent;
+            Debug.DrawRay(this.transform.position, normal, Color.green);
+            Debug.DrawRay(this.transform.position, tangent, Color.yellow);
+            
+            // 限制贴墙速度.
+            role.rd.velocity = role.rd.velocity.Len(role.rd.velocity.magnitude.Min(grabWallMaxSpeed));
+            
+            return attachDir;
+        }
+        
         /// <summary>
         /// 强制贴地, 避免惯性导致的短暂的贴地"飞行".
         /// 当角色离地时, 应当检查其是否能够直接贴向地面.
+        /// 当角色已经触地时, 直接返回 true.
         /// </summary>
         bool TryAttachGround()
         {
             if(touchingGround) return true;
-
-            var colliders = new List<Collider2D>();
-            role.rd.GetAttachedColliders(colliders);
-            var inf = 1e10f;
+            
+            const float inf = 1e10f;
             var dist = inf;
             
             // 收集该角色的所有多边形碰撞盒, 从每个顶点往下打出射线, 取最短的命中距离作为下移的距离.
+            var colliders = new List<Collider2D>();
+            role.rd.GetAttachedColliders(colliders);
             foreach(var col in colliders)
             {
                 if(!(col is PolygonCollider2D poly)) continue;
@@ -328,7 +453,7 @@ namespace Tower.Components
                 }
             }
             
-            if(dist < attachDistance)
+            if(dist < attachGroundDist)
             {
                 role.rd.position += Vector2.down * dist;
                 return true;
@@ -376,6 +501,11 @@ namespace Tower.Components
         /// 判定该法线是不是"地面"的法线.
         /// </summary>
         bool InGroundNormalRange(Vector2 normal) => Vector2.Angle(normal, Vector2.up) <= groundAngle;
+        
+        /// <summary>
+        /// 判定该法线是不是"墙面"法线.
+        /// </summary>
+        bool InWallNormalRange(Vector2 normal) => Vector2.Angle(normal, Vector2.right).Min(Vector2.Angle(normal, Vector2.left)) <= wallAngle;
         
         /// <summary>
         /// 起跳.

@@ -7,9 +7,9 @@ Physics2DSettings:
   m_Gravity: {x: 0, y: -12}
   m_DefaultMaterial: {fileID: 6200000, guid: 3b67459c33d105c41b71e164d0f3b34d, type: 2}
   m_VelocityIterations: 10
-  m_PositionIterations: 8
-  m_VelocityThreshold: 0.1
-  m_MaxLinearCorrection: 0.12
+  m_PositionIterations: 14
+  m_VelocityThreshold: 0.05
+  m_MaxLinearCorrection: 0.08
   m_MaxAngularCorrection: 8
   m_MaxTranslationSpeed: 300
   m_MaxRotationSpeed: 1080
