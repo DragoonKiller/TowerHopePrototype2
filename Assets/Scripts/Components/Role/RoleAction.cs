@@ -127,14 +127,6 @@ namespace Tower.Components
                     var grabDir = 0;
                     if(grabWallCooldownTimer == 0f) grabDir = action.TryAttachWall();
                     
-                    // 如果抓墙方向和当前按键方向不一致, 或者当前没有抓墙, 则处理在空中的移动.
-                    if(!((left && grabDir == -1) || (right && grabDir == 1)))
-                    {
-                        if(left == right && grabDir == 0) action.MoveInTheAir(0);
-                        else if(left) action.MoveInTheAir(-1);
-                        else if(right) action.MoveInTheAir(1);
-                    }
-                    
                     // 冲刺和跳跃是同一个按键.
                     if(CommandQueue.Get(KeyBinding.inst.rush))
                     {
@@ -154,6 +146,18 @@ namespace Tower.Components
                     
                     // 限制竖直速度.
                     role.rd.velocity = role.rd.velocity.Y(role.rd.velocity.y.Clamp(-role.action.maxVerticalSpeed, role.action.maxVerticalSpeed));
+                    
+                    // 如果抓墙方向和当前按键方向不一致, 或者当前没有抓墙.
+                    if(!((left && grabDir == -1) || (right && grabDir == 1)))
+                    {
+                        // 离开墙面.
+                        grabWallCooldownTimer = role.action.grabWallCooldown;
+                        
+                        // 处理在空中的移动.
+                        if(left == right && grabDir == 0) action.MoveInTheAir(0);
+                        else if(left) action.MoveInTheAir(-1);
+                        else if(right) action.MoveInTheAir(1);
+                    }
                 }
             }
         }
@@ -297,12 +301,12 @@ namespace Tower.Components
         /// <summary>
         /// 是否触地.
         /// </summary>
-        bool touchingGround => contacts.Aggregate(false, (a, x) => a || InGroundNormalRange(x.normal));
+        public bool touchingGround => contacts.Aggregate(false, (a, x) => a || InGroundNormalRange(x.normal));
         
         /// <summary>
         /// 是否触墙.
         /// </summary>
-        bool touchingWall => contacts.Aggregate(false, (a, x) => a || InWallNormalRange(x.normal));
+        public bool touchingWall => contacts.Aggregate(false, (a, x) => a || InWallNormalRange(x.normal));
         
         /// <summary>
         /// 目前所站位置的地面法线. 取离竖直向上的方向最近的接触点向量.

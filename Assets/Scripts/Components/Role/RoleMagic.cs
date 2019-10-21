@@ -35,7 +35,7 @@ namespace Tower.Components
         
         public bool TryUseMagic(float amount)
         {
-            if(magic > amount)
+            if(magic >= amount)
             {
                 magic -= amount;
                 return true;
@@ -66,7 +66,10 @@ namespace Tower.Components
         
         void Step(Signals.PostUpdate e)
         {
-            RecoverMagic(e.dt * recoverRate);
+            if(role.action == null || (role.action.touchingGround || role.action.touchingWall))
+            {
+                RecoverMagic(e.dt * recoverRate);
+            }
         }
     }
 }
