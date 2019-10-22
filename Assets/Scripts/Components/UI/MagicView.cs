@@ -32,17 +32,7 @@ namespace Tower.UI
 
         RectTransform rect => this.GetComponent<RectTransform>();
 
-        void Start()
-        {
-            Signal<Signals.PostUpdate>.Listen(Step);
-        }
-
-        void OnDestroy()
-        {
-            Signal<Signals.PostUpdate>.Remove(Step);
-        }
-
-        void Step(Signals.PostUpdate e)
+        void Update()
         {
             if(role == null || role.magic == null)
             {

@@ -81,7 +81,7 @@ namespace Tower.Components
             mesh.SetVertices(vts);
             mesh.SetIndices(ids.ToArray(), MeshTopology.Triangles, 0);
             mesh.RecalculateBounds();
-            mesh.name = "Generated tarrain mesh";
+            mesh.name = "Generated Mesh (PolyMesh)";
             return mesh;
         }
     }

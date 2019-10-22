@@ -11,17 +11,7 @@ namespace Tower.Components
     {
         public Transform target;
         
-        void Start()
-        {
-            Signal<Signals.PostUpdate>.Listen(Step);
-        }
-        
-        void OnDestroy()
-        {
-            Signal<Signals.PostUpdate>.Remove(Step);
-        }
-        
-        void Step(Signals.PostUpdate e)
+        void Update()
         {
             var fromPos = target.position.ToVec2();
             var toPos = ExCursor.worldPos;

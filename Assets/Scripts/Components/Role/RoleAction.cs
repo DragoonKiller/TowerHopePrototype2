@@ -150,8 +150,12 @@ namespace Tower.Components
                     // 如果抓墙方向和当前按键方向不一致, 或者当前没有抓墙.
                     if(!((left && grabDir == -1) || (right && grabDir == 1)))
                     {
-                        // 离开墙面.
-                        grabWallCooldownTimer = role.action.grabWallCooldown;
+                        // 当前正在抓墙, 但是想要离开.
+                        if((left && grabDir == 1) || (right && grabDir == -1))
+                        {
+                            grabWallCooldownTimer = role.action.grabWallCooldown;
+                            role.action.WallJump(-grabDir);
+                        }
                         
                         // 处理在空中的移动.
                         if(left == right && grabDir == 0) action.MoveInTheAir(0);
@@ -358,13 +362,13 @@ namespace Tower.Components
                         Physics2D.Raycast(origin, Vector2.left, grabWallDist, LayerMask.GetMask("Terrain")),
                         Physics2D.Raycast(origin, Vector2.right, grabWallDist, LayerMask.GetMask("Terrain"))
                     );
-                    if(leftHit)
+                    if(leftHit && InWallNormalRange(leftHit.normal))
                     {
                         leftDist.UpdMin(leftHit.distance);
                         leftSum += leftHit.normal;
                         leftCnt += 1;
                     }
-                    if(rightHit)
+                    if(rightHit && InWallNormalRange(rightHit.normal))
                     {
                         rightDist.UpdMin(rightHit.distance);
                         rightSum += rightHit.normal;
@@ -372,6 +376,7 @@ namespace Tower.Components
                     }
                 }
             }
+            
             return (
                 leftCnt == 0 ? (Vector2?)null : (leftSum / leftCnt).normalized * leftDist,
                 rightCnt == 0 ? (Vector2?)null : (rightSum / rightCnt).normalized * rightDist

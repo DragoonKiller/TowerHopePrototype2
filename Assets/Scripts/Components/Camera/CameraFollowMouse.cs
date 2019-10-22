@@ -40,17 +40,7 @@ namespace Tower.Components
         
         Vector2 fpos => follow.position;
         
-        CameraFollowMouse()
-        {
-            Signal<Signals.PostUpdate>.Listen(Step);
-        }
-
-        void OnDestroy()
-        {
-            Signal<Signals.PostUpdate>.Remove(Step);
-        }
-
-        void Step(Signals.PostUpdate e)
+        void Update()
         {
             if(!active) return;
             

@@ -54,21 +54,11 @@ namespace Tower.Components
             return true;
         }
 
-        void Start()
-        {
-            Signal<Signals.PostUpdate>.Listen(Step);
-        }
-
-        void OnDestroy()
-        {
-            Signal<Signals.PostUpdate>.Remove(Step);
-        }
-        
-        void Step(Signals.PostUpdate e)
+        void Update()
         {
             if(role.action == null || (role.action.touchingGround || role.action.touchingWall))
             {
-                RecoverMagic(e.dt * recoverRate);
+                RecoverMagic(Time.deltaTime * recoverRate);
             }
         }
     }

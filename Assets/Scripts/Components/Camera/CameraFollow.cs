@@ -47,20 +47,10 @@ namespace Tower.Components
         [Header("Info")]
         [SerializeField] public Vector2 localRelativePosition;
 
-        CameraFollow()
-        {
-            Signal<Signals.PostUpdate>.Listen(Step);
-        }
-
-        void OnDestroy()
-        {
-            Signal<Signals.PostUpdate>.Remove(Step);
-        }
-
-        void Step(Signals.PostUpdate e)
+        void Update()
         {
             if(!active) return;
-            UpdatePos(e.dt);
+            UpdatePos(Time.deltaTime);
             LimitArea();   
         }
         

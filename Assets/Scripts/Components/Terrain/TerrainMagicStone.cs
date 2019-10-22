@@ -30,17 +30,7 @@ namespace Tower.Components
         readonly List<ContactPoint2D> contacts = new List<ContactPoint2D>();
         readonly List<RoleMagic> recovered = new List<RoleMagic>(); 
 
-        void Start()
-        {
-            Signal<Signals.PostUpdate>.Listen(Step);
-        }
-
-        void OnDestroy()
-        {
-            Signal<Signals.PostUpdate>.Remove(Step);
-        }
-        
-        void Step(Signals.PostUpdate e)
+        void Update()
         {
             // 注意该函数会 clear 这个 list.
             cd.GetContacts(contacts);
@@ -71,7 +61,7 @@ namespace Tower.Components
             {
                 if(!r.magic) continue;
                 // 考虑到角色本身也会回复法力, 这里减掉角色自身的法力回复值.
-                r.magic.RecoverMagic(e.dt * (magicRecoverMult - 1));
+                r.magic.RecoverMagic(Time.deltaTime * (magicRecoverMult - 1));
             }
             
             prevRoles.Clear();

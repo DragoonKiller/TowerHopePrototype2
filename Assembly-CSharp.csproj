@@ -58,6 +58,7 @@
      <Compile Include="Assets\Scripts\Components\Camera\CameraFollowMouse.cs" />
      <Compile Include="Assets\Scripts\Components\Global\Environment.cs" />
      <Compile Include="Assets\Scripts\Components\Global\KeyBinding.cs" />
+     <Compile Include="Assets\Scripts\Components\Global\PostEnvironment.cs" />
      <Compile Include="Assets\Scripts\Components\Global\SkillTable.cs" />
      <Compile Include="Assets\Scripts\Components\Mesh\PolyMesh.cs" />
      <Compile Include="Assets\Scripts\Components\Minimap\MinimapCamera.cs" />
@@ -70,10 +71,12 @@
      <Compile Include="Assets\Scripts\Components\Terrain\TerrainMagicStone.cs" />
      <Compile Include="Assets\Scripts\Components\UI\MagicView.cs" />
      <Compile Include="Assets\Scripts\Components\WorldSpaceUI\AimingArrow.cs" />
-     <Compile Include="Assets\Scripts\Impls\Animation\SampleAttackAnimation.cs" />
      <Compile Include="Assets\Scripts\Impls\Skills\BaseSkill.cs" />
      <Compile Include="Assets\Scripts\Impls\Skills\SampleAttack.cs" />
      <Compile Include="Assets\Scripts\Impls\Skills\WindRush.cs" />
+     <Compile Include="Assets\Scripts\RenderSystem\PipelineUtils.cs" />
+     <Compile Include="Assets\Scripts\RenderSystem\RenderSystem.cs" />
+     <Compile Include="Assets\Scripts\RenderSystem\RenderSystemAsset.cs" />
      <Compile Include="Assets\Scripts\Systems\CommandQueue\Command.cs" />
      <Compile Include="Assets\Scripts\Systems\EventSignals\InputSignalProcessor.cs" />
      <Compile Include="Assets\Scripts\Systems\EventSignals\InputSignals.cs" />

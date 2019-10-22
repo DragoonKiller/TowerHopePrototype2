@@ -36,15 +36,9 @@ namespace Tower.Components
         {
             beginTime = Time.time;
             dir = dir.normalized;
-            Signal<Signals.PostUpdate>.Listen(Step);
         }
 
-        void OnDestroy()
-        {
-            Signal<Signals.PostUpdate>.Remove(Step);
-        }
-
-        void Step(Signals.PostUpdate e)
+        void Update()
         {
             float curTime = Time.time;
             float usedTime = curTime - beginTime;
@@ -52,9 +46,10 @@ namespace Tower.Components
             if(usedTime >= duration) return;
         }
 
-
-
-
+        void OnDestroy()
+        {
+            
+        }
     }
 
 }
