@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: RenderSystem
   m_EditorClassIdentifier: 
   clearColor: {r: 0, g: 1, b: 0, a: 1}
+  localExplodeEffect: {fileID: 2100000, guid: 7e1832987b59d9b4a9b8cc23e1c2c92e, type: 2}

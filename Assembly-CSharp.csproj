@@ -96,6 +96,7 @@
      <Compile Include="Assets\Scripts\Utils\Maths\SuffixSyntax.cs" />
      <Compile Include="Assets\Scripts\Utils\Nothing\Nothing.cs" />
      <Compile Include="Assets\Scripts\Utils\UnitTest\UnitTest.cs" />
+     <None Include="Assets\Materials\PostEffect\LocalExplodeEffect.shader" />
      <None Include="Assets\Materials\TerrainMat\SampleTerrainShader.shader" />
      <None Include="Assets\Materials\UI\MinimapPostEffect.shader" />
  <Reference Include="Unity.Timeline.Editor">

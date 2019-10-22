@@ -7,7 +7,7 @@ namespace Tower.Rendering
     public static class Utils
     {
         [ThreadStatic]
-        static CommandBuffer cmds = new CommandBuffer();
+        static CommandBuffer cmds = new CommandBuffer() { name = "shared command buffer" };
             
         public static void ConsumeCommands(this ScriptableRenderContext context, CommandBuffer buffer)
         {

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -11,7 +12,10 @@ namespace Tower.Rendering
     {
         public static RenderSystemAsset inst;
         public Color clearColor = Color.green;
-
+        
+        [Header("Main Camera")]
+        public Material localExplodeEffect;
+        
         RenderSystemAsset()
         {
             inst = this;
