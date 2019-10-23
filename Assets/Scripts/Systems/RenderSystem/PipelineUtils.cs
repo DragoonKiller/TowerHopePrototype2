@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using System;
 
-namespace Tower.Rendering
+namespace Systems.Rendering
 {
     public static class Utils
     {

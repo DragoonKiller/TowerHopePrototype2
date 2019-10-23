@@ -64,6 +64,7 @@
      <Compile Include="Assets\Scripts\Components\Minimap\MinimapCamera.cs" />
      <Compile Include="Assets\Scripts\Components\Minimap\MinimapDisplayControl.cs" />
      <Compile Include="Assets\Scripts\Components\ObjectAnimation\ObjectAnimMagicFlare.cs" />
+     <Compile Include="Assets\Scripts\Components\PostEffects\LocalExplodePostEffect.cs" />
      <Compile Include="Assets\Scripts\Components\Role\Role.cs" />
      <Compile Include="Assets\Scripts\Components\Role\RoleAction.cs" />
      <Compile Include="Assets\Scripts\Components\Role\RoleMagic.cs" />
@@ -74,12 +75,13 @@
      <Compile Include="Assets\Scripts\Impls\Skills\BaseSkill.cs" />
      <Compile Include="Assets\Scripts\Impls\Skills\SampleAttack.cs" />
      <Compile Include="Assets\Scripts\Impls\Skills\WindRush.cs" />
-     <Compile Include="Assets\Scripts\RenderSystem\PipelineUtils.cs" />
-     <Compile Include="Assets\Scripts\RenderSystem\RenderSystem.cs" />
-     <Compile Include="Assets\Scripts\RenderSystem\RenderSystemAsset.cs" />
      <Compile Include="Assets\Scripts\Systems\CommandQueue\Command.cs" />
+     <Compile Include="Assets\Scripts\Systems\DataReference\DataReference.cs" />
      <Compile Include="Assets\Scripts\Systems\EventSignals\InputSignalProcessor.cs" />
      <Compile Include="Assets\Scripts\Systems\EventSignals\InputSignals.cs" />
+     <Compile Include="Assets\Scripts\Systems\RenderSystem\PipelineUtils.cs" />
+     <Compile Include="Assets\Scripts\Systems\RenderSystem\RenderSystem.cs" />
+     <Compile Include="Assets\Scripts\Systems\RenderSystem\RenderSystemAsset.cs" />
      <Compile Include="Assets\Scripts\Systems\SignalSystem\Signals.cs" />
      <Compile Include="Assets\Scripts\Systems\SignalSystem\SignalSystem.cs" />
      <Compile Include="Assets\Scripts\Systems\StateMachine\StateMachine.cs" />
@@ -97,6 +99,7 @@
      <Compile Include="Assets\Scripts\Utils\Nothing\Nothing.cs" />
      <Compile Include="Assets\Scripts\Utils\UnitTest\UnitTest.cs" />
      <None Include="Assets\Materials\PostEffect\LocalExplodeEffect.shader" />
+     <None Include="Assets\Materials\Rendering\SubSample.shader" />
      <None Include="Assets\Materials\TerrainMat\SampleTerrainShader.shader" />
      <None Include="Assets\Materials\UI\MinimapPostEffect.shader" />
  <Reference Include="Unity.Timeline.Editor">

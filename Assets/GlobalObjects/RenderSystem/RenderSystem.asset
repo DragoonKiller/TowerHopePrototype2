@@ -12,5 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69684bd6c9a5823499b0f7198ff70018, type: 3}
   m_Name: RenderSystem
   m_EditorClassIdentifier: 
-  clearColor: {r: 0, g: 1, b: 0, a: 1}
-  localExplodeEffect: {fileID: 2100000, guid: 7e1832987b59d9b4a9b8cc23e1c2c92e, type: 2}
+  clearColor: {r: 0.82745105, g: 0.82745105, b: 0.82745105, a: 1}
+  subSampleMaterial: {fileID: 2100000, guid: eb4b9d21e7027f94885d12d6fb701241, type: 2}
+  mainCamereSizeMult: 2
+  mainCameraSampleMult: 1
