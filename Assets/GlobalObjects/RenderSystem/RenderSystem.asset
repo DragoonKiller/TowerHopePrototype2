@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   clearColor: {r: 0.82745105, g: 0.82745105, b: 0.82745105, a: 1}
   subSampleMaterial: {fileID: 2100000, guid: eb4b9d21e7027f94885d12d6fb701241, type: 2}
-  mainCamereSizeMult: 2
-  mainCameraSampleMult: 1
+  mainCameraResolutionMult: 1.4285715
+  mainCamereSizeMult: 1.4
+  mainCameraSampleMult: 0.71428573

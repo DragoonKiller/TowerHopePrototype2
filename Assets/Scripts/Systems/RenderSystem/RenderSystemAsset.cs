@@ -19,17 +19,21 @@ namespace Systems
         [Tooltip("超采样和子视口变换材质.")]
         public Material subSampleMaterial;
         
-        [Tooltip("主摄像机将会渲染预设值乘以这个常数的大小的屏幕, 以方面进行后处理以及超采样.")]
+        
+        [Tooltip("初始渲染分辨率乘数.")]
+        [Range(1, 4)] public float mainCameraResolutionMult;
+        
+        [Tooltip("主摄像机渲染的场景大小乘数.")]
         [Range(1, 4)] public float mainCamereSizeMult;
         
-        [Tooltip("最终视野大小和原屏幕相比的大小. 最后一步渲染处理会直接取图上的一部分, 这部分的大小由改参数决定.")]
-        [Range(1, 2)] public float mainCameraSampleMult;
+        [Tooltip("取主摄像机渲染图片的多少来画在最终的屏幕上.")]
+        [Range(1e-4f, 1)] public float mainCameraSampleMult;
         
         /// <summary>
         /// 后处理操作队列. 每帧会依次取队列中的函数对象执行并销毁.
         /// 队列中的函数负责设置好后处理的材质的各项参数后返回该材质, 以执行 CommandBuffer.Blit.
         /// </summary>
-        public Queue<Func<Material>> postRenderQueue = new Queue<Func<Material>>();
+        public List<Func<Material>> postRenderQueue = new List<Func<Material>>();
         
         RenderSystemAsset()
         {

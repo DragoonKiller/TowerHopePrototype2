@@ -12,65 +12,6 @@ namespace Systems
     using Rendering;
     
     /// <summary>
-    /// 双缓冲机制, 保存后处理的渲染目标.
-    /// </summary>
-    struct RenderTextureBuffer
-    {
-        ScriptableRenderContext context;
-        Vector2Int size;
-        
-        /// <summary>
-        /// 双缓冲形式的后处理渲染目标.
-        /// </summary>
-        static RenderTexture[] sceneRenderTexture = new RenderTexture[2];
-        
-        /// <summary>
-        /// 当前正在使用哪个渲染目标.
-        /// </summary>
-        static int curTexture;
-        
-        /// <summary>
-        /// 获取当前正在使用的缓冲.
-        /// </summary>
-        static RenderTexture Sync(int id, Vector2Int size)
-        {
-            var cur = sceneRenderTexture[id];
-            if(cur == null || cur.width != size.x || cur.height != size.y)
-            {
-                sceneRenderTexture[id] = cur = new RenderTexture(
-                    size.x,
-                    size.y,
-                    24,
-                    RenderTextureFormat.Default,
-                    RenderTextureReadWrite.Default
-                );
-            }
-            return cur;
-        }
-        
-        /// <summary>
-        /// 交换缓冲.
-        /// </summary>
-        static void Swap() => curTexture ^= 1;
-        
-        /// <summary>
-        /// 构造函数. 
-        /// </summary>
-        public RenderTextureBuffer(Vector2Int size, ScriptableRenderContext context) => (this.size, this.context) = (size, context);
-        
-        /// <summary>
-        /// 直接提供这两个缓冲.
-        /// </summary>
-        public RenderTextureBuffer WithTextures(Action<RenderTexture, RenderTexture> f)
-        {
-            var x = Sync(curTexture, size);
-            var y = Sync(curTexture ^ 1, size);
-            f(x, y);
-            return this;
-        }
-    }
-
-    /// <summary>
     /// 定义一整套渲染流程.
     /// </summary>
     public sealed class RenderSystem : RenderPipeline
@@ -96,7 +37,6 @@ namespace Systems
                 if(Camera.main == cam) MainCameraRendering(cam, context);
                 else if(cam.name == "SceneCamera") SceneCameraRendering(cam, context);
                 else InGameCameraRendering(cam, context);
-                context.Submit();
             }
         }
         
@@ -138,40 +78,49 @@ namespace Systems
             // 绑定摄像机参数.
             context.SetupCameraProperties(cam);
             
-            var drawSize = new Vector2Int(cam.pixelWidth, cam.pixelHeight);
-            drawSize.x = (drawSize.x * data.mainCamereSizeMult).FloorToInt();
-            drawSize.y = (drawSize.y * data.mainCamereSizeMult).FloorToInt();
-            new RenderTextureBuffer(drawSize, context).WithTextures((a, b) =>
+            // 设置临时渲染目标.
+            var resolution = new Vector2Int(cam.pixelWidth, cam.pixelHeight);
+            resolution.x = (resolution.x * data.mainCameraResolutionMult * data.mainCamereSizeMult).FloorToInt();
+            resolution.y = (resolution.y * data.mainCameraResolutionMult * data.mainCamereSizeMult).FloorToInt();
+            new Rendering.Utils.RenderTextureBuffer(resolution, context).WithTextures((a, b) =>
             {
-                a.name = "FrameBufferA";
-                b.name = "FrameBufferB";
-                
                 // 改变绘制目标.
                 context.ConsumeCommands(x => x.SetRenderTarget(a));    
             
                 // 常规绘制部分.
                 OrdinaryDraw(cam, context);
                 
-                // 后处理.
-                context.ConsumeCommands(x =>
+                // 应用特效.
+                foreach(var f in data.postRenderQueue)
                 {
-                    // 应用特效.
-                    while(data.postRenderQueue.Count != 0)
+                    context.ConsumeCommands(x => 
                     {
-                        var f = data.postRenderQueue.Dequeue();
                         var mat = f();
+                        
+                        // 清空输出.
+                        x.SetRenderTarget(b);
+                        
+                        // 只有颜色信息, 没有深度信息. 不需要清空深度.
+                        x.ClearRenderTarget(false, true, new Color(0, 0, 0, 1));
+                        
+                        // 完成绘制.
                         x.Blit(a, b, mat);
+                        
                         // 交换缓冲. 保证总是读取 a, 绘制 b.
-                        var c = a;
-                        a = b;
-                        b = c;
-                    }
-                    
-                    // 把最终的图片绘制到摄像机的绘制目标(即屏幕)上.
+                        (a, b) = (b, a);
+                    });
+                }
+                
+                data.postRenderQueue.Clear();
+                
+                // 把最终的图片绘制到摄像机的绘制目标(即屏幕)上.
+                context.ConsumeCommands(x => 
+                {
                     data.subSampleMaterial.SetVector("_SubSamplePivot", new Vector2(0.5f, 0.5f));
                     data.subSampleMaterial.SetFloat("_SubSampleRate", data.mainCameraSampleMult);
                     x.Blit(a, BuiltinRenderTextureType.CameraTarget, data.subSampleMaterial);
                 });
+            
             });
             
             // 恢复摄像机渲染范围.
@@ -194,6 +143,8 @@ namespace Systems
             var drawSettings = new DrawingSettings(unlitShaderTagId, sortSettings);
             var filterSettings = new FilteringSettings(RenderQueueRange.all);
             context.DrawRenderers(cullRes, ref drawSettings, ref filterSettings);
+            
+            context.Submit();
         }
     }
 }

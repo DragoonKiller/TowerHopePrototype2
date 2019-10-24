@@ -9,7 +9,7 @@
         Cull Off 
         ZWrite Off
         ZTest Always
-        Blend OneMinusDstAlpha DstAlpha
+        Blend SrcAlpha OneMinusSrcAlpha
 
         Pass
         {
