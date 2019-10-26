@@ -98,7 +98,6 @@
      <Compile Include="Assets\Scripts\Utils\Maths\SuffixSyntax.cs" />
      <Compile Include="Assets\Scripts\Utils\Nothing\Nothing.cs" />
      <Compile Include="Assets\Scripts\Utils\UnitTest\UnitTest.cs" />
-     <None Include="Assets\Materials\PostEffect\LocalExplodeEffect.shader" />
      <None Include="Assets\Materials\FX\LocalExplodeEffect.shader" />
      <None Include="Assets\Materials\Utils\Utils.cginc" />
      <None Include="Assets\Materials\Rendering\SubSample.shader" />

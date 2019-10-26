@@ -44,7 +44,44 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mat: {fileID: 2100000, guid: 7e1832987b59d9b4a9b8cc23e1c2c92e, type: 2}
-  lifeTime: 4
-  maxRadius: 3
-  maxDeform: 2
+  additionalColor: {r: 1, g: 1, b: 1, a: 0.2}
+  lifeTime: 0.8
+  maxRadius: 1.2
+  maxDeform: 50
+  deformCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.0023498535
+      inSlope: 2.3705003
+      outSlope: 2.3705003
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.050490104
+    - serializedVersion: 3
+      time: 0.81563663
+      value: 0.8148737
+      inSlope: -1.9411244
+      outSlope: -1.9411244
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.04699925
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0.002357483
+      inSlope: -6.194369
+      outSlope: -6.194369
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.07723674
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spaceFrequency: 0.5
+  timeFrequency: 5
+  biasThreshold: 0
   beginTime: 0

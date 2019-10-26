@@ -63,6 +63,9 @@ float2 a2v(float a) { return float2(cos(a), sin(a)); }
 // 角度转三维单位向量. 角 a 是偏航角, 范围 [-pi, pi]. 角 b 是俯仰角, 范围 [-0.5 pi, 0.5 pi].
 float3 a2v(float a, float b) { return float3(cos(a) * sin(b), sin(a) * sin(b), cos(b)); }
 
+// 环形映射. 输入 pos(角度, 半径). 输出坐标. 其中角度需要指定位置.
+float2 circmap(float2 pos, float angleRange) { return float2(cos(pos.x / angleRange * 3.1415926536 * 2), sin(pos.x / angleRange * 3.1415926536 * 2)) * pos.y; }
+
 // ============================================================================
 // 平滑函数
 // ============================================================================
@@ -80,14 +83,27 @@ float4 smoothSin(float4 x) { return 0.5 * (1 - cos(x * 3.1411592653589793)); }
 // 从 UV 坐标转变为世界坐标.
 float2 UVToWorld(float2 viewportSize, float2 uvPos)
 {
-    return _WorldSpaceCameraPos.xy + viewportSize * xmap(uvPos, 0, 1, -1, 1);
+    return _WorldSpaceCameraPos.xy + viewportSize * xmap(uvPos, 0, 1, -0.5, 0.5);
 }
 
 // 从 UV 坐标转变为世界坐标.
 float2 UVToWorld(float2 uvPos)
 {
-    return _WorldSpaceCameraPos.xy + unity_OrthoParams.xy * xmap(uvPos, 0, 1, -1, 1);
+    return _WorldSpaceCameraPos.xy + unity_OrthoParams.xy * xmap(uvPos, 0, 1, -0.5, 0.5);
 }
+
+// 从世界坐标转变为 UV 坐标.
+float2 WorldToUV(float2 viewportSize, float2 worldPos)
+{
+    return xmap((worldPos - _WorldSpaceCameraPos.xy) / viewportSize, -0.5, 0.5, 0, 1);
+}
+
+// 从世界坐标转变为 UV 坐标.
+float2 WorldToUV(float2 worldPos)
+{
+    return xmap((worldPos - _WorldSpaceCameraPos.xy) / unity_OrthoParams.xy, -0.5, 0.5, 0, 1);
+}
+
 
 // ============================================================================
 // 噪声
@@ -212,3 +228,11 @@ float perlinNoise(float2 a, float freq) { return perlinNoise(float3(a.xy, 12123.
 
 // 一维柏林噪声.
 float perlinNoise(float a, float freq) { return perlinNoise(float3(a, 3399.123441, 773.113), freq); }
+
+// ============================================================================
+// 颜色混合
+// ============================================================================
+
+float4 blendNormal(float4 src, float4 dst) { return float4(src.rgb * src.a + dst.rgb * (1 - src.a), min(1, src.a + dst.a)); }
+float4 blendMult(float4 src, float4 dst) { return float4(src.rgb * src.a * dst.rgb, dst.a); }
+float4 blendAdditional(float4 src, float4 dst) { return float4(src.rgb * src.a + dst.rgb, min(1, src.a + dst.a)); }
