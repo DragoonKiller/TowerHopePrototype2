@@ -9,7 +9,6 @@ using RenderPipeline = UnityEngine.Rendering.RenderPipeline;
 namespace Systems
 {
     using Utils;
-    using Rendering;
     
     /// <summary>
     /// 定义一整套渲染流程.
@@ -61,8 +60,11 @@ namespace Systems
         /// </summary>
         void InGameCameraRendering(Camera cam, ScriptableRenderContext context)
         {
+            var x = cam.GetComponent<CustomRendering>();
+            if(x) x.PreRender(context);
             context.SetupCameraProperties(cam);
             OrdinaryDraw(cam, context);
+            if(x) x.PostRender(context);
         }
         
         /// <summary>
@@ -82,7 +84,7 @@ namespace Systems
             var resolution = new Vector2Int(cam.pixelWidth, cam.pixelHeight);
             resolution.x = (resolution.x * data.mainCameraResolutionMult * data.mainCamereSizeMult).FloorToInt();
             resolution.y = (resolution.y * data.mainCameraResolutionMult * data.mainCamereSizeMult).FloorToInt();
-            new Rendering.Utils.RenderTextureBuffer(resolution, context).WithTextures((a, b) =>
+            new RenderingUtils.RenderTextureBuffer(resolution, context).WithTextures((a, b) =>
             {
                 // 改变绘制目标.
                 context.ConsumeCommands(x => x.SetRenderTarget(a));    

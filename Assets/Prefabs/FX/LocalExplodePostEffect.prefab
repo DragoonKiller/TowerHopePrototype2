@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mat: {fileID: 2100000, guid: 7e1832987b59d9b4a9b8cc23e1c2c92e, type: 2}
-  additionalColor: {r: 1, g: 1, b: 1, a: 0.2}
+  additionalColor: {r: 1, g: 1, b: 1, a: 0.4}
   lifeTime: 0.8
   maxRadius: 1.2
   maxDeform: 50

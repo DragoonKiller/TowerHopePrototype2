@@ -2,9 +2,9 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using System;
 
-namespace Systems.Rendering
+namespace Systems
 {
-    public static class Utils
+    public static class RenderingUtils
     {
         [ThreadStatic]
         static CommandBuffer cmds = new CommandBuffer() { name = "shared command buffer" };
