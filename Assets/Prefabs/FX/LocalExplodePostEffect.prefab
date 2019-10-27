@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 451993820868199639}
   - component: {fileID: 451993820868199636}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: LocalExplodePostEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46,8 +46,8 @@ MonoBehaviour:
   mat: {fileID: 2100000, guid: 7e1832987b59d9b4a9b8cc23e1c2c92e, type: 2}
   additionalColor: {r: 1, g: 1, b: 1, a: 0.4}
   lifeTime: 0.8
-  maxRadius: 1.2
-  maxDeform: 50
+  maxRadius: 1.5
+  maxDeform: 60
   deformCurve:
     serializedVersion: 2
     m_Curve:

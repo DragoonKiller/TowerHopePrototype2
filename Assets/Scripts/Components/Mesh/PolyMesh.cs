@@ -25,36 +25,23 @@ namespace Tower.Components
         MeshFilter ms => GetComponent<MeshFilter>();
 
         //=====================================================================
-        // 状态属性
-        //=====================================================================
-
-        /// <summary>
-        /// 是否应该刷新.
-        /// 主要用于编辑器内的刷新控制.
-        /// </summary>
-        public bool refresh;
-
-        //=====================================================================
         // Unity API函数
         //=====================================================================
-
-        //void Start()
-        //{
-        //    Signal<Signals.PostUpdate>.Listen(Step);
-        //}
-
-        //void OnDestroy()
-        //{
-        //    Signal<Signals.PostUpdate>.Listen(Step);
-        //}
 
         /// <summary>
         /// 这个函数要在编辑器中运行.
         /// </summary>
         void Update()
         {
-            if(refresh) ms.mesh = ToMesh(pc);
-
+            if(Application.isEditor)
+            {
+                ms.mesh = ToMesh(pc);
+            }
+        }
+        
+        void Start()
+        {
+            ms.mesh = ToMesh(pc);
         }
 
         //=====================================================================

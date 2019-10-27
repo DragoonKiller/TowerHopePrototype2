@@ -81,6 +81,7 @@
                 bias *= 1 - clamp(sign(dist - _MaxRadius), 0, 1);
                 
                 float4 color = tex2D(_MainTex, i.uv + bias * pow(1 - _Process, 2));
+                color.a = 1;
                 if(bias.x != 0 || bias.y != 0) color = blendNormal(float4(_Color.rgb, _Color.a * pow(1 - _Process, 2) * (1 - radiusRate)), color);
                 return color;
             }

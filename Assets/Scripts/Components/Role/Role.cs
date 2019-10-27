@@ -11,6 +11,8 @@ namespace Tower.Components
         public Rigidbody2D rd => this.GetComponent<Rigidbody2D>();
         public RoleSkills skills => this.GetComponent<RoleSkills>();
         public RoleMagic magic => this.GetComponent<RoleMagic>();
+        public RoleHealth health => this.GetComponent<RoleHealth>();
+        public RoleTrail trail => this.GetComponent<RoleTrail>();
         
         public void Start()
         {
@@ -22,5 +24,4 @@ namespace Tower.Components
             rd.simulated = false;
         }
     }
-
 }

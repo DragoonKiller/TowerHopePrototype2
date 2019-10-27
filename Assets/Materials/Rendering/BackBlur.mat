@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: SampleTerrainMat
-  m_Shader: {fileID: 4800000, guid: fb8d93cd88e5f014ca2919731963f13a, type: 3}
+  m_Name: BackBlur
+  m_Shader: {fileID: 4800000, guid: 8552b4125f1c6e248b76b5ab9f266529, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0

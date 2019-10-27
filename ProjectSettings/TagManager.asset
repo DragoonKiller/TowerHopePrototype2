@@ -18,22 +18,22 @@ TagManager:
   - 
   - Terrain
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Background4
+  - Background3
+  - Background2
+  - Background1
+  - Background0
   - PlayerControl
-  - PlayerUI
+  - 
   - PlayerFX
-  - 
   - NonPlayerControl
-  - 
-  - 
   - EnvironmentFX
-  - 
   - MinimapOnly
   - 
+  - 
+  - 
+  - 
+  - PlayerUI
   - 
   - 
   - NoInteraction

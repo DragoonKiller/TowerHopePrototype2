@@ -53,22 +53,27 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\Components\Camera\Background\BackgroundCameraRenderer.cs" />
      <Compile Include="Assets\Scripts\Components\Camera\CameraFixFollow.cs" />
      <Compile Include="Assets\Scripts\Components\Camera\CameraFollow.cs" />
      <Compile Include="Assets\Scripts\Components\Camera\CameraFollowMouse.cs" />
+     <Compile Include="Assets\Scripts\Components\Camera\CameraSyncTexture.cs" />
+     <Compile Include="Assets\Scripts\Components\Camera\Main\MainCameraRenderer.cs" />
+     <Compile Include="Assets\Scripts\Components\Camera\Minimap\MinimapCameraRenderer.cs" />
+     <Compile Include="Assets\Scripts\Components\Camera\Minimap\MinimapDisplayControl.cs" />
      <Compile Include="Assets\Scripts\Components\FX\LocalExplodePostEffect.cs" />
      <Compile Include="Assets\Scripts\Components\Global\Environment.cs" />
      <Compile Include="Assets\Scripts\Components\Global\KeyBinding.cs" />
      <Compile Include="Assets\Scripts\Components\Global\PostEnvironment.cs" />
      <Compile Include="Assets\Scripts\Components\Global\SkillTable.cs" />
      <Compile Include="Assets\Scripts\Components\Mesh\PolyMesh.cs" />
-     <Compile Include="Assets\Scripts\Components\Minimap\MinimapCamera.cs" />
-     <Compile Include="Assets\Scripts\Components\Minimap\MinimapDisplayControl.cs" />
      <Compile Include="Assets\Scripts\Components\ObjectAnimation\ObjectAnimMagicFlare.cs" />
      <Compile Include="Assets\Scripts\Components\Role\Role.cs" />
      <Compile Include="Assets\Scripts\Components\Role\RoleAction.cs" />
+     <Compile Include="Assets\Scripts\Components\Role\RoleHealth.cs" />
      <Compile Include="Assets\Scripts\Components\Role\RoleMagic.cs" />
      <Compile Include="Assets\Scripts\Components\Role\RoleSkills.cs" />
+     <Compile Include="Assets\Scripts\Components\Role\RoleTrail.cs" />
      <Compile Include="Assets\Scripts\Components\Terrain\TerrainMagicStone.cs" />
      <Compile Include="Assets\Scripts\Components\UI\MagicView.cs" />
      <Compile Include="Assets\Scripts\Components\WorldSpaceUI\AimingArrow.cs" />
@@ -100,9 +105,10 @@
      <Compile Include="Assets\Scripts\Utils\Nothing\Nothing.cs" />
      <Compile Include="Assets\Scripts\Utils\UnitTest\UnitTest.cs" />
      <None Include="Assets\Materials\FX\LocalExplodeEffect.shader" />
+     <None Include="Assets\Materials\Rendering\BackBlur.shader" />
      <None Include="Assets\Materials\Utils\Utils.cginc" />
      <None Include="Assets\Materials\Rendering\SubSample.shader" />
-     <None Include="Assets\Materials\TerrainMat\SampleTerrainShader.shader" />
+     <None Include="Assets\Materials\TerrainMat\SampleTerrain.shader" />
      <None Include="Assets\Materials\UI\MinimapPostEffect.shader" />
  <Reference Include="Unity.Timeline.Editor">
  <HintPath>G:/TowerHope/TowerHope.Prototype.2/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>

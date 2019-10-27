@@ -9,9 +9,12 @@ namespace Systems
     /// 继承这个类, 并且把这个脚本挂在摄像机上, 就可以使用它.
     /// </summary>
     [ExecuteAlways]
+    [RequireComponent(typeof(Camera))]
     public abstract class CustomRendering : MonoBehaviour
     {
-        public virtual void PreRender(ScriptableRenderContext context) { }
-        public virtual void PostRender(ScriptableRenderContext context) { }
+        protected RenderSystemAsset data => RenderSystemAsset.inst;
+        protected Camera cam => this.GetComponent<Camera>();
+                
+        public abstract void Render(ScriptableRenderContext context, RenderSystem renderer);
     }
 }

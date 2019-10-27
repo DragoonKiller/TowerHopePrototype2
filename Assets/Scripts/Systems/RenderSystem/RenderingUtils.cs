@@ -1,13 +1,18 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 using System;
+using System.Collections.Generic;
 
 namespace Systems
 {
+    using Utils;
+    
     public static class RenderingUtils
     {
+        static string sharedCommandBufferName = "shared command buffer";
+        
         [ThreadStatic]
-        static CommandBuffer cmds = new CommandBuffer() { name = "shared command buffer" };
+        static CommandBuffer cmds = new CommandBuffer() { name = sharedCommandBufferName };
             
         public static void ConsumeCommands(this ScriptableRenderContext context, CommandBuffer buffer)
         {
@@ -25,6 +30,13 @@ namespace Systems
             context.Submit();
         }
         
+        public static void ConsumeCommands(this ScriptableRenderContext context, string name, Action<CommandBuffer> f)
+        {
+            cmds.name = name;
+            context.ConsumeCommands(f);
+            cmds.name = sharedCommandBufferName;
+        }
+        
         
         /// <summary>
         /// 双缓冲机制, 保存后处理的渲染目标.
@@ -32,12 +44,12 @@ namespace Systems
         public struct RenderTextureBuffer
         {
             ScriptableRenderContext context;
+            string name;
             Vector2Int size;
+            public FilterMode filter;
+            public TextureWrapMode wrap;
             
-            /// <summary>
-            /// 双缓冲形式的后处理渲染目标.
-            /// </summary>
-            static RenderTexture[] sceneRenderTexture = new RenderTexture[2];
+            static Dictionary<string, RenderTexture[]> textures = new Dictionary<string, RenderTexture[]>();
             
             /// <summary>
             /// 当前正在使用哪个渲染目标.
@@ -47,9 +59,10 @@ namespace Systems
             /// <summary>
             /// 获取当前正在使用的缓冲.
             /// </summary>
-            static RenderTexture Sync(int id, Vector2Int size)
+            static RenderTexture Sync(string name, int id, Vector2Int size, FilterMode filterMode, TextureWrapMode wrapMode)
             {
-                var cur = sceneRenderTexture[id];
+                var tex = textures.GetOrDefault(name, new RenderTexture[2]);
+                var cur = tex[id];
                 if(cur == null || cur.width != size.x || cur.height != size.y)
                 {
                     var desc = new RenderTextureDescriptor(size.x, size.y);
@@ -57,8 +70,11 @@ namespace Systems
                     desc.colorFormat = RenderTextureFormat.ARGB32;
                     desc.enableRandomWrite = true;
                     desc.sRGB = true;
-                    sceneRenderTexture[id] = cur = new RenderTexture(desc);
-                    sceneRenderTexture[id].name = $"Temp Render Target {id}";
+                    if(tex[id] != null) tex[id].Release();
+                    tex[id] = cur = new RenderTexture(desc);
+                    tex[id].name = $"{name} Temp {id}";
+                    tex[id].filterMode = filterMode;
+                    tex[id].wrapMode = wrapMode;
                 }
                 return cur;
             }
@@ -71,15 +87,21 @@ namespace Systems
             /// <summary>
             /// 构造函数. 
             /// </summary>
-            public RenderTextureBuffer(Vector2Int size, ScriptableRenderContext context) => (this.size, this.context) = (size, context);
+            public RenderTextureBuffer(
+                string name,
+                ScriptableRenderContext context, 
+                Vector2Int size, 
+                FilterMode filter = FilterMode.Point,
+                 TextureWrapMode wrap = TextureWrapMode.Clamp
+            ) => (this.name, this.context, this.size, this.filter, this.wrap) = (name, context, size, filter, wrap);
             
             /// <summary>
             /// 直接提供这两个缓冲.
             /// </summary>
             public RenderTextureBuffer WithTextures(Action<RenderTexture, RenderTexture> f)
             {
-                var x = Sync(curTexture, size);
-                var y = Sync(curTexture ^ 1, size);
+                var x = Sync(name, curTexture, size, filter, wrap);
+                var y = Sync(name, curTexture ^ 1, size, filter, wrap);
                 f(x, y);
                 return this;
             }
