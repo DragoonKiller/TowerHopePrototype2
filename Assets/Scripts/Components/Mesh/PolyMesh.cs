@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 using Utils;
 using static Utils.Algorthms;
@@ -33,10 +34,14 @@ namespace Tower.Components
         /// </summary>
         void Update()
         {
-            if(Application.isEditor)
-            {
-                ms.mesh = ToMesh(pc);
-            }
+            UpdateMesh();
+        }
+        
+        void UpdateMesh()
+        {
+            if(Application.isPlaying) return;
+            if(!Application.isEditor) return;
+            ms.mesh = ToMesh(pc);
         }
         
         void Start()
@@ -52,8 +57,6 @@ namespace Tower.Components
         /// <summary>
         /// 从自定义 polygon collider 生成一个 mesh.
         /// </summary>
-        /// <param name="collider"></param>
-        /// <param name="meshFilter"></param>
         static Mesh ToMesh(PolygonCollider2D collider)
         {
             var trs = new List<Vector2>(collider.GetPath(0)).Triangulation();
