@@ -1,7 +1,8 @@
-Library/
-Libs/
-Logs/
-Temp/
+[Bb]uild/
+[Ll]ibrary/
+[Ll]ibs/
+[Ll]ogs/
+[Tt]emp/
 .vs/
 .vscode/
-obj/
+[Oo]bj/
