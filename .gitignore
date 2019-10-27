@@ -1,8 +1,49 @@
-[Bb]uild/
-[Ll]ibrary/
-[Ll]ibs/
-[Ll]ogs/
-[Tt]emp/
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Ll]ibs/
+/[Ll]ib/
+/[Mm]emoryCaptures/
+
+# 编辑器和IDE
 .vs/
 .vscode/
-[Oo]bj/
+
+# 自动生成的项目文件
+ExportedObj/
+.consulo/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# 保证Assets中的meta文件会被提交
+!/[Aa]ssets/**/*.meta
+
+# Unity 为 IDE 等生成的文件生成的 metafile...
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+# 崩溃报错
+sysinfo.txt
+
+# 独立安装包
+*.apk
+*.unitypackage
+
+# 崩溃分析的生成文件
+crashlytics-build.properties

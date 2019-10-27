@@ -39,7 +39,9 @@ namespace Systems
         
         
         /// <summary>
-        /// 双缓冲机制, 保存后处理的渲染目标.
+        /// 双缓冲贴图, 保存后处理的渲染目标.
+        /// 同一个渲染操作应当使用统一的标识; 不同的渲染操作应当使用不同的渲染标识.
+        /// 这样可以避免因为渲染参数不一致而频繁创建和销毁贴图.
         /// </summary>
         public struct RenderTextureBuffer
         {

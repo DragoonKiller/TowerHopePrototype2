@@ -33,6 +33,7 @@
             };
 
             sampler2D _MainTex;
+            float4 _MainTex_TexelSize;
             
             // 采样矩形的中心在原图的哪个位置.
             float2 _SubSamplePivot;
@@ -50,7 +51,16 @@
 
             float4 frag(v2f i) : SV_Target
             {
-                float4 color = tex2D(_MainTex, (i.uv - _SubSamplePivot) * _SubSampleRate + _SubSamplePivot);
+                // 做一个手动的狗牙消除...
+                // 要求贴图的过滤方式不是 Point.
+                float2 sampleCenter = (i.uv - _SubSamplePivot) * _SubSampleRate + _SubSamplePivot;
+                float4 color = 0.25 * (
+                    tex2D(_MainTex, sampleCenter + float2(0.5, 0.5) * _MainTex_TexelSize.xy)
+                    + tex2D(_MainTex, sampleCenter + float2(-0.5, 0.5) * _MainTex_TexelSize.xy)
+                    + tex2D(_MainTex, sampleCenter + float2(0.5, -0.5) * _MainTex_TexelSize.xy)
+                    + tex2D(_MainTex, sampleCenter + float2(-0.5, -0.5) * _MainTex_TexelSize.xy)
+                );
+                
                 return color;
             }
             ENDCG
