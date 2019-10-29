@@ -82,9 +82,9 @@ namespace Utils
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Xmap(this float x, float l, float r, float a, float b) => (x - l) / (r - l) * (b - a) + a;
-
-
-
+        
+        
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Abs(this float x) => Mathf.Abs(x);
 
@@ -252,14 +252,23 @@ namespace Utils
         /// <summary>
         /// 以 dir 为对称轴, dst 对应的对称点.
         /// </summary>
-        /// <param name="dir"></param>
-        /// <param name="dst"></param>
-        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2 Reflect(this Vector2 dir, Vector2 dst)
             => Vector2.Reflect(dst, dir);
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CloseTo(this Vector2 a, Vector2 b) => a.To(b).magnitude.LEZ();
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Rect Translate(this Rect rect, Vector2 offset) => new Rect(rect.position + offset, rect.size);
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Rect Translate(this Rect rect, float x, float y) => rect.Translate(new Vector2(x, y));
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Rect Resize(this Rect rect, Vector2 size) => new Rect(rect.position + rect.size * 0.5f - size * 0.5f, size);
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Rect Resize(this Rect rect, float x, float y) => rect.Resize(new Vector2(x, y));
     }
 }

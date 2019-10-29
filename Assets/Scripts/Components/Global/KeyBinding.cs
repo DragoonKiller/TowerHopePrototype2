@@ -47,6 +47,8 @@ namespace Tower.Global
         [SerializeField] Setting moveRightSetting;
         [SerializeField] Setting jumpSetting;
         [SerializeField] Setting crouchSetting;
+        
+        [SerializeField] Setting setReviveSetting;
 
         [SerializeField] Setting rushSetting;
         [SerializeField] Setting attackSetting;
@@ -66,7 +68,9 @@ namespace Tower.Global
         public KeyCode moveRight { get; private set; }
         public KeyCode jump { get; private set; }
         public KeyCode crouch { get; private set; }
-
+        
+        public KeyCode setRevive { get; private set; }
+        
         public KeyCode rush { get; private set; }
         public KeyCode attack { get; private set; }
         public KeyCode magicAttack { get; private set; }

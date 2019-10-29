@@ -5,6 +5,7 @@ using UnityEngine;
 namespace Tower.Components
 {
     using Systems;
+    using Utils;
     
     /// <summary>
     /// 处理局部爆炸模糊的对象.
@@ -21,8 +22,14 @@ namespace Tower.Components
         [Tooltip("该对象的留存时间.")]
         public float lifeTime;
         
+        [Tooltip("最小影响范围.")]
+        public float minRadius;
+        
         [Tooltip("最大影响范围.")]
         public float maxRadius;
+        
+        [Tooltip("半径变化规律.")]
+        public AnimationCurve radiusCurve;
         
         [Tooltip("扭曲强度.")]
         public float maxDeform;
@@ -69,7 +76,7 @@ namespace Tower.Components
             mat.SetVector("_CameraViewport", 2 * new Vector2(Camera.main.aspect * Camera.main.orthographicSize, Camera.main.orthographicSize));
             mat.SetColor("_Color", additionalColor);
             mat.SetFloat("_TimeOffset", beginTime % 100.0f);
-            mat.SetFloat("_MaxRadius", maxRadius);
+            mat.SetFloat("_MaxRadius", radiusCurve.Evaluate(process).Xmap(0, 1, minRadius, maxRadius));
             mat.SetFloat("_Deform", maxDeform * deformCurve.Evaluate(process));
             mat.SetFloat("_SpaceFrequency", spaceFrequency);
             mat.SetFloat("_TimeFrequency", timeFrequency);

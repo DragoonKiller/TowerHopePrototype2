@@ -59,7 +59,7 @@ Material:
     - _BiasThreshold: 0
     - _BumpScale: 1
     - _Cutoff: 0.5
-    - _Deform: 0.6683099
+    - _Deform: 6.973765
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _Frequency: 1
@@ -67,22 +67,22 @@ Material:
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _MaxDeform: 40
-    - _MaxRadius: 1.5
+    - _MaxRadius: 2.9807763
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _Process: 0.99858046
+    - _Process: 0.9812546
     - _SmoothnessTextureChannel: 0
     - _SpaceFrequency: 0.5
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _TimeFrequency: 5
-    - _TimeOffset: 29.53055
+    - _TimeOffset: 18.205816
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _CameraViewport: {r: 49.644447, g: 28.800003, b: 0, a: 0}
-    - _Center: {r: 17.67102, g: 26.105742, b: 0, a: 0}
+    - _CameraViewport: {r: 46.58286, g: 28.800001, b: 0, a: 0}
+    - _Center: {r: 0.73486197, g: 12.38909, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 0.4}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

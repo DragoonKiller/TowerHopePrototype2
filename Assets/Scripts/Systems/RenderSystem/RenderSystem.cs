@@ -56,7 +56,6 @@ namespace Systems
             InGameCameraRendering(cam, context);
             if(Handles.ShouldRenderGizmos()) context.DrawGizmos(cam, GizmoSubset.PostImageEffects);
             context.Submit();
-            
         }
         
         /// <summary>
@@ -86,7 +85,7 @@ namespace Systems
             if(!cam.TryGetCullingParameters(out var culls)) return;
             var cullRes = context.Cull(ref culls);
             
-            var sortSettings = new SortingSettings(cam) { criteria = SortingCriteria.CommonOpaque };
+            var sortSettings = new SortingSettings(cam) { criteria = SortingCriteria.CommonTransparent };
             var drawSettings = new DrawingSettings(unlitShaderTagId, sortSettings);
             var filterSettings = new FilteringSettings(RenderQueueRange.all);
             context.DrawRenderers(cullRes, ref drawSettings, ref filterSettings);
