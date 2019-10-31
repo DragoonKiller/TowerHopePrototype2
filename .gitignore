@@ -47,3 +47,6 @@ sysinfo.txt
 
 # 崩溃分析的生成文件
 crashlytics-build.properties
+
+# 备份文件.
+*~
