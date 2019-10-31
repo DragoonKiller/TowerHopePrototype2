@@ -17,10 +17,10 @@ namespace Tower.Components
     public sealed class RoleReviveStone : MonoBehaviour
     {
         [Tooltip("复活石放置对象的prefab.")]
-        public ReviveStone source;
+        public ReviveStone sourceStone;
         
-        [Tooltip("复活点列表.")]
-        public List<ReviveStone> revivePoints;
+        [Tooltip("复活石指示对象的prefab.")]
+        public ReviveStoneConnection sourceConnection;
         
         [Tooltip("存储了复活石的背包.")]
         public Transform inventory;
@@ -33,10 +33,18 @@ namespace Tower.Components
         
         [Header("Debug")]
         
+        [Tooltip("复活点列表.")]
+        public List<ReviveStone> revivePoints;
+        
+        [Tooltip("复活点连接列表.")]
+        public List<ReviveStoneConnection> reviveConnections;
+        
         [Tooltip("角色按下放置复活点按钮的计时.")]
         [SerializeField] float process;
         
         Role role => this.GetComponent<Role>();
+        
+        bool hasReviveStone => inventory.childCount != 0;
         
         /// <summary>
         /// 删掉所有复活点.
@@ -51,6 +59,7 @@ namespace Tower.Components
             Settle();
             SetFX();
             CleanRevivePoints();
+            ResetReviveConnection();
         }
         
         /// <summary>
@@ -58,7 +67,7 @@ namespace Tower.Components
         /// </summary>
         void Settle()
         {
-            if(!CommandQueue.Get(KeyBinding.inst.setRevive))
+            if(!CommandQueue.Get(KeyBinding.inst.setRevive) || !hasReviveStone)
             {
                 process = 0;
                 return;
@@ -94,7 +103,7 @@ namespace Tower.Components
         /// </summary>
         void GenerateRevivePoint()
         {
-            var x = Instantiate(source.gameObject).GetComponent<ReviveStone>();
+            var x = Instantiate(sourceStone.gameObject).GetComponent<ReviveStone>();
             x.transform.position = this.gameObject.transform.position;
             revivePoints.Add(x);
         }
@@ -104,10 +113,34 @@ namespace Tower.Components
         /// </summary>
         bool TryConsumeReviveStone()
         {
-            if(inventory.childCount == 0) return false;
+            if(!hasReviveStone) return false;
             if(!inventory.GetChild(0).TryGetComponent<ReviveStonePickedItem>(out var reviveStone)) return false;
             reviveStone.Consume();
             return true;
+        }
+        
+        /// <summary>
+        /// 同步复活石之间的连接.
+        /// </summary>
+        void ResetReviveConnection()
+        {
+            while(reviveConnections.Count < revivePoints.Count - 1)
+            {
+                reviveConnections.Add(Instantiate(sourceConnection));
+            }
+            
+            while(reviveConnections.Count != 0 && reviveConnections.Count > revivePoints.Count - 1)
+            {
+                DestroyImmediate(reviveConnections.Last().gameObject);
+                reviveConnections.RemoveLast();
+            }
+            
+            for(int i = 0; i < reviveConnections.Count; i++)
+            {
+                var from = revivePoints[i].transform.position.ToVec2();
+                var to = revivePoints[i + 1].transform.position.ToVec2();
+                reviveConnections[i].SetFromTo(from, to);
+            }
         }
     }
 }
