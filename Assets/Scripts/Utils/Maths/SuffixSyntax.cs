@@ -211,7 +211,18 @@ namespace Utils
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 Z(this Vector3 a, float z) => new Vector3(a.x, a.y, z);
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Color R(this Color x, float v) => new Color(v, x.g, x.b, x.a);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Color G(this Color x, float v) => new Color(x.r, v, x.b, x.a);
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Color B(this Color x, float v) => new Color(x.r, x.g, v, x.a);
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Color A(this Color x, float v) => new Color(x.r, x.g, x.b, v);
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -221,7 +232,7 @@ namespace Utils
         public static Vector3 ToVec3(this Vector2 a) => new Vector3(a.x, a.y, 0f);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3 ToVec3(this Vector3 a, float z) => new Vector3(a.x, a.y, z);
+        public static Vector3 ToVec3(this Vector2 a, float z) => new Vector3(a.x, a.y, z);
 
 
 

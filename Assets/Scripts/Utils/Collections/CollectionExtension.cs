@@ -11,6 +11,9 @@ namespace Utils
 {
     public static partial class Collections
     {
+        /// <summary>
+        /// 获取迭代器的第一个元素.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T First<T>(this IEnumerable<T> x)
         {
@@ -18,9 +21,10 @@ namespace Utils
             if(!i.MoveNext()) throw new ArgumentNullException();
             return i.Current;
         }
-
-
-
+        
+        /// <summary>
+        /// 获取一个元素; 如果没有, 就使用默认值创建它.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T GetOrDefault<R, T>(this SortedList<R, T> dict, R key, T defaultVal)
         {
@@ -29,6 +33,9 @@ namespace Utils
             return defaultVal;
         }
 
+        /// <summary>
+        /// 获取一个元素; 如果没有, 就使用无参构造函数创建它.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T GetOrDefault<R, T>(this SortedList<R, T> dict, R key)
             where T : new()
@@ -39,6 +46,9 @@ namespace Utils
             return res;
         }
 
+        /// <summary>
+        /// 获取一个元素; 如果没有, 就使用默认值创建它.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T GetOrDefault<R, T>(this Dictionary<R, T> dict, R key, T defaultVal)
         {
@@ -47,6 +57,9 @@ namespace Utils
             return defaultVal;
         }
 
+        /// <summary>
+        /// 获取一个元素; 如果没有, 就使用无参构造函数创建它.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T GetOrDefault<R, T>(this Dictionary<R, T> dict, R key)
             where T : new()
@@ -56,37 +69,32 @@ namespace Utils
             dict.Add(key, res);
             return res;
         }
-
+        
+        /// <summary>
+        /// 向列表添加从from到to的整数.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AddIntRange(this List<int> ls, int from, int to)
         {
             for(int i = from; i <= to; i++) ls.Add(i);
         }
-
+        
+        /// <summary>
+        /// 向列表中添加元素.
+        /// </summary>
+        // 该函数不会覆盖单参数的 Add 函数.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static List<T> Add<T>(this List<T> x, T a, T b, params T[] c)
         {
-            // The single-parameter Add function will not match this.
             x.Add(a);
             x.Add(b);
             foreach(var i in c) x.Add(i);
             return x;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T FindOrDefault<T>(this T[] s, Predicate<T> f, T def)
-        {
-            for(int i = 0; i < s.Length; i++) if(f(s[i])) return s[i];
-            return def;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T FindOrNew<T>(this T[] s, Predicate<T> f) where T : new()
-        {
-            for(int i = 0; i < s.Length; i++) if(f(s[i])) return s[i];
-            return new T();
-        }
-
+        
+        /// <summary>
+        /// 找到第一个符合条件的元素的下标.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int FindIndex<T>(this T[] s, Predicate<T> f)
         {
@@ -94,6 +102,9 @@ namespace Utils
             return -1;
         }
 
+        /// <summary>
+        /// 把迭代器包装成容器.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerable<T> ToEnumerable<T>(this IEnumerator<T> v)
         {
@@ -103,30 +114,45 @@ namespace Utils
             }
         }
 
+        /// <summary>
+        /// 返回从数组的第begin个元素到数组的第end-1个元素的迭代器.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerable<T> ToEnumerable<T>(this T[] arr, int begin, int end)
         {
             for(int i = begin; i < end; i++) yield return arr[i];
         }
-
+        
+        /// <summary>
+        /// 返回从数组的第0个元素到数组的第end-1个元素的迭代器.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerable<T> ToEnumerable<T>(this T[] arr, int end)
         {
             for(int i = 0; i < end; i++) yield return arr[i];
         }
-
+        
+        /// <summary>
+        /// 取最后一个元素.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T Last<T>(this List<T> lst)
         {
             return lst[lst.Count - 1];
         }
-
+        
+        /// <summary>
+        /// 删除最后一个元素.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RemoveLast<T>(this List<T> lst)
         {
             lst.RemoveAt(lst.Count - 1);
         }
-
+        
+        /// <summary>
+        /// 比较 a 和 b, 找出相对于 a, 集合 b 添加了哪些元素, 删除了哪些元素.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (List<T> added, List<T> removed) FowardComapre<T>(this ICollection<T> a, ICollection<T> b)
         {

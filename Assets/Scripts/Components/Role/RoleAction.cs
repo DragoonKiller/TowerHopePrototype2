@@ -207,7 +207,7 @@ namespace Tower.Components
                         yield return trans;
                         continue;
                     }
-
+                    
                     // 在地上左右移动.
                     bool left = CommandQueue.Get(KeyBinding.inst.moveLeft);
                     bool right = CommandQueue.Get(KeyBinding.inst.moveRight);
@@ -328,7 +328,7 @@ namespace Tower.Components
         {
             stateTag = StateMachine.Register(new FlyState(this)).tag;
         }
-
+        
         void OnDestroy()
         {
             StateMachine.Remove(stateTag);

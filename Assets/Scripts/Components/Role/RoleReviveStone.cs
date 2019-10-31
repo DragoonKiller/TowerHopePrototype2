@@ -28,6 +28,9 @@ namespace Tower.Components
         [Tooltip("角色放置复活点的耗时.")]
         public float placeTime;
         
+        [Tooltip("放置石头时的特效控制脚本.")]
+        public ReviveStonePlaceFX reviveStonePlaceFX;
+        
         [Header("Debug")]
         
         [Tooltip("角色按下放置复活点按钮的计时.")]
@@ -46,6 +49,7 @@ namespace Tower.Components
         void Update()
         {
             Settle();
+            SetFX();
             CleanRevivePoints();
         }
         
@@ -70,6 +74,14 @@ namespace Tower.Components
         }
         
         /// <summary>
+        /// 设置特效脚本.
+        /// </summary>
+        void SetFX()
+        {
+            reviveStonePlaceFX.process = process / placeTime;
+        }
+        
+        /// <summary>
         /// 删掉列表中所有失效的复活点.
         /// </summary>
         void CleanRevivePoints()
@@ -83,6 +95,7 @@ namespace Tower.Components
         void GenerateRevivePoint()
         {
             var x = Instantiate(source.gameObject).GetComponent<ReviveStone>();
+            x.transform.position = this.gameObject.transform.position;
             revivePoints.Add(x);
         }
         
