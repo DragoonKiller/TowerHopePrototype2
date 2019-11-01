@@ -4,11 +4,10 @@ using UnityEngine;
 using System;
 using System.Linq;
 
-using Systems;
-using Utils;
-
 namespace Tower.Components
 {
+    using Systems;
+    using Utils;
     using Global;
     using Skills;
 
@@ -102,6 +101,8 @@ namespace Tower.Components
                 while(true)
                 {
                     yield return Pass();
+                    if(!action.enabled) continue; 
+                    
                     float t = Time.time - beginTime;
                     grabWallCooldownTimer = (grabWallCooldownTimer - Time.deltaTime).Max(0f);
                     
@@ -176,6 +177,7 @@ namespace Tower.Components
                 while(true)
                 {
                     yield return Pass();
+                    if(!action.enabled) continue; 
                     
                     bool attachedGround = action.TryAttachGround();
 
@@ -332,7 +334,7 @@ namespace Tower.Components
         {
             StateMachine.Remove(stateTag);
         }
-
+        
         #endregion
         // ============================================================================================================
         #region Tool methods
@@ -477,7 +479,7 @@ namespace Tower.Components
         {
             var targetVx = dir * airHoriSpeed;
             var curVx = rd.velocity.x;
-            rd.velocity = rd.velocity.X(NextVelocity(curVx, targetVx, airAccRate, Time.deltaTime));
+            rd.velocity = rd.velocity.X(Maths.PowerStep(curVx, targetVx, airAccRate, Time.deltaTime));
         }
         
         /// <summary>
@@ -502,7 +504,7 @@ namespace Tower.Components
                 : -groundNormal.RotHalfPi() * groundHoriSpeed;
             Debug.DrawRay(this.transform.position, targetV, Color.black);
             if(curV.Dot(targetV) < 0f) curV = Vector2.zero;
-            rd.velocity = NextVelocity(curV, targetV, groundAccRate, Time.deltaTime);
+            rd.velocity = Maths.PowerStep(curV, targetV, groundAccRate, Time.deltaTime);
         }
 
         /// <summary>
@@ -531,16 +533,6 @@ namespace Tower.Components
         }
 
 
-        // 速度随时间变化公式, 其中 H是额定速度, a是功率, C是当前速度:
-        // f(t) = H - 2^-at * (H - C)
-        // 就有:
-        // f(r) - f(l) = (H - C) (- 2^-ar + 2^-al)
-        //   = (H - C) a^-l (- 2^-a(r-l) + 1 )
-        //   = (H - f(l)) (-2^-adt + 1)
-        // 所以欧拉插值法用递推式: v(r) = v(l) + (H - v(l)) (1 - 2^-adt)
-        public float NextVelocity(float curV, float targetV, float acc, float dt) => curV + (targetV - curV) * (1f - 2.Pow(-acc * dt));
-        public Vector2 NextVelocity(Vector2 curV, Vector2 targetV, float acc, float dt) => curV + (targetV - curV) * (1f - 2.Pow(-acc * dt));
-        
         #endregion
     }
 }

@@ -89,7 +89,7 @@ namespace Tower.Skills
                 while(true)
                 {
                     // 移动速度减少.
-                    rd.velocity = action.NextVelocity(rd.velocity, Vector2.zero, data.decelerateRate, Time.deltaTime);
+                    rd.velocity = Maths.PowerStep(rd.velocity, Vector2.zero, data.decelerateRate, Time.deltaTime);
 
                     t += Time.deltaTime;
                     while(t >= data.frameTime)
