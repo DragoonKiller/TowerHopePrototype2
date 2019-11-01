@@ -11,7 +11,6 @@ namespace Tower.Components
     /// <summary>
     /// 控制角色的尾拖特效.
     /// </summary>
-    [RequireComponent(typeof(Role))]
     public sealed class RoleTrail : MonoBehaviour
     {
         [Tooltip("该脚本管理的尾拖轨迹.")]

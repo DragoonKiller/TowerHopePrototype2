@@ -37,19 +37,18 @@ namespace Tower.Components
     // * 空中状态有一个跳跃计数. 从地面起跳变为空中状态, 或者技能结束变为空中状态, 跳跃计数初始化为 0. 
     //   其它情况离开地面, 空中状态跳跃计数初始化为 1, 一段时间后 -1. 用这个机制实现短时离地起跳. 
     // * 地面状态有一个"跳跃计数", 跳起后 -1, 放开跳跃键后 +1, 这样能保证长按空格时不会一直跳.
-    [RequireComponent(typeof(Role))]
-    [RequireComponent(typeof(Rigidbody2D))]
+    [RequireComponent(typeof(RoleRigidbody))]
+    [RequireComponent(typeof(RoleSkills))]
     [Serializable]
     public sealed class RoleAction : MonoBehaviour
     {
-        
         #region Types
-
+        
         public abstract class BaseState : StateMachine
         {
             protected readonly RoleAction action;
-            protected Role role => action.role;
-            protected RoleSkills skills => role.skills;
+            protected RoleSkills skills => action.GetComponent<RoleSkills>();
+            protected Rigidbody2D rd => action.GetComponent<Rigidbody2D>();
             public BaseState(RoleAction roleAction) => this.action = roleAction;
             
             /// <summary>
@@ -59,7 +58,7 @@ namespace Tower.Components
             {
                 if(CommandQueue.Get(key) && skill != null)
                 {
-                    if(skill.TryGetState(role, out var stm))
+                    if(skill.TryGetState(action.gameObject, out var stm))
                     {
                         trans = Trans(stm);
                         return true;
@@ -75,10 +74,10 @@ namespace Tower.Components
             protected bool TryUseAnySkill(out StateMachine.Transfer resTrans)
             {
                 var skillList = new (ISkillConfig skill, KeyCode key)[] {
-                    (role.skills.primary, KeyBinding.inst.primarySkill),
-                    (role.skills.secondary, KeyBinding.inst.secondarySkill),
-                    (role.skills.attack, KeyBinding.inst.attack),
-                    (role.skills.magicAttack, KeyBinding.inst.magicAttack)
+                    (skills.primary, KeyBinding.inst.primarySkill),
+                    (skills.secondary, KeyBinding.inst.secondarySkill),
+                    (skills.attack, KeyBinding.inst.attack),
+                    (skills.magicAttack, KeyBinding.inst.magicAttack)
                 };
                 
                 foreach(var (skill, key) in skillList) if(TryUseSkill(skill, key, out resTrans)) return true;
@@ -133,19 +132,19 @@ namespace Tower.Components
                         // 如果抓墙成功, 那么支持墙跳.
                         if(grabDir != 0)
                         {
-                            grabWallCooldownTimer = role.action.grabWallCooldown;
-                            role.action.WallJump(grabDir);
+                            grabWallCooldownTimer = action.grabWallCooldown;
+                            action.WallJump(grabDir);
                         }
                         
                         // 否则, 处理冲刺.
-                        else if(TryUseSkill(role.skills.rush, KeyBinding.inst.rush, out var transJump))
+                        else if(TryUseSkill(skills.rush, KeyBinding.inst.rush, out var transJump))
                         {
                             yield return transJump;
                         }
                     }
                     
                     // 限制竖直速度.
-                    role.rd.velocity = role.rd.velocity.Y(role.rd.velocity.y.Clamp(-role.action.maxVerticalSpeed, role.action.maxVerticalSpeed));
+                    rd.velocity = rd.velocity.Y(rd.velocity.y.Clamp(-action.maxVerticalSpeed, action.maxVerticalSpeed));
                     
                     // 如果抓墙方向和当前按键方向不一致, 或者当前没有抓墙.
                     if(!((left && grabDir == -1) || (right && grabDir == 1)))
@@ -153,8 +152,8 @@ namespace Tower.Components
                         // 当前正在抓墙, 但是想要离开.
                         if((left && grabDir == 1) || (right && grabDir == -1))
                         {
-                            grabWallCooldownTimer = role.action.grabWallCooldown;
-                            role.action.WallJump(-grabDir);
+                            grabWallCooldownTimer = action.grabWallCooldown;
+                            action.WallJump(-grabDir);
                         }
                         
                         // 处理在空中的移动.
@@ -270,9 +269,9 @@ namespace Tower.Components
         [Tooltip("最大竖直速度.")]
         public float maxVerticalSpeed;
         
+        public Rigidbody2D rd => this.GetComponent<Rigidbody2D>();
         
-        
-        public Role role => GetComponent<Role>();
+        public RoleSkills skills => this.GetComponent<RoleSkills>();
         
         public MoveState GetMoveState() => new MoveState(this);
         
@@ -281,7 +280,7 @@ namespace Tower.Components
         /// <summary>
         /// 起跳事件的回调函数.
         /// </summary>
-        public Action<Role> JumpCallbacks = x => { };
+        public Action<GameObject> JumpCallbacks = x => { };
         
         #endregion
         // ============================================================================================================
@@ -297,7 +296,7 @@ namespace Tower.Components
         {
             get
             {
-                int cnt = role.rd.GetContacts(contactBuffer);
+                int cnt = rd.GetContacts(contactBuffer);
                 return contactBuffer.ToEnumerable(cnt);
             }
         }
@@ -347,7 +346,7 @@ namespace Tower.Components
         (Vector2? left, Vector2? right) GetWallAttachInfo()
         {
             var colliders = new List<Collider2D>();
-            role.rd.GetAttachedColliders(colliders);
+            rd.GetAttachedColliders(colliders);
             const float inf = 1e10f;
             var (leftDist, rightDist) = (inf, inf);
             var (leftSum, rightSum) = (Vector2.zero, Vector2.zero);
@@ -394,7 +393,7 @@ namespace Tower.Components
             
             var jumpDir = leftAttach.HasValue ? leftAttach.Value.normalized : rightAttach.Value.normalized;
             
-            role.rd.velocity = role.rd.velocity * wallJumpSpeedMult + jumpDir * wallJumpSpeed;
+            rd.velocity = rd.velocity * wallJumpSpeedMult + jumpDir * wallJumpSpeed;
         }
         
         
@@ -418,18 +417,18 @@ namespace Tower.Components
             
             // 贴墙操作.
             float attachDist = leftAttach != null ? leftAttach.Value.magnitude : rightAttach.Value.magnitude;
-            role.rd.position += attachDir * attachDist * Vector2.right;
+            rd.position += attachDir * attachDist * Vector2.right;
             
             // 把速度改换成沿着墙面切线的方向, 以保证在结束抓墙时的速度顺着墙的切线方向.
             var normal = leftAttach != null ? leftAttach.Value.normalized : rightAttach.Value.normalized;
             var tangent = normal.RotHalfPi();
-            if(role.rd.velocity.Dot(tangent) > 0) role.rd.velocity = role.rd.velocity.magnitude * tangent;
-            else role.rd.velocity = role.rd.velocity.magnitude * -tangent;
+            if(rd.velocity.Dot(tangent) > 0) rd.velocity = rd.velocity.magnitude * tangent;
+            else rd.velocity = rd.velocity.magnitude * -tangent;
             Debug.DrawRay(this.transform.position, normal, Color.green);
             Debug.DrawRay(this.transform.position, tangent, Color.yellow);
             
             // 限制贴墙速度.
-            role.rd.velocity = role.rd.velocity.Len(role.rd.velocity.magnitude.Min(grabWallMaxSpeed));
+            rd.velocity = rd.velocity.Len(rd.velocity.magnitude.Min(grabWallMaxSpeed));
             
             return attachDir;
         }
@@ -448,7 +447,7 @@ namespace Tower.Components
             
             // 收集该角色的所有多边形碰撞盒, 从每个顶点往下打出射线, 取最短的命中距离作为下移的距离.
             var colliders = new List<Collider2D>();
-            role.rd.GetAttachedColliders(colliders);
+            rd.GetAttachedColliders(colliders);
             foreach(var col in colliders)
             {
                 if(!(col is PolygonCollider2D poly)) continue;
@@ -464,7 +463,7 @@ namespace Tower.Components
             
             if(dist < attachGroundDist)
             {
-                role.rd.position += Vector2.down * dist;
+                rd.position += Vector2.down * dist;
                 return true;
             }
             
@@ -477,8 +476,8 @@ namespace Tower.Components
         void MoveInTheAir(int dir)
         {
             var targetVx = dir * airHoriSpeed;
-            var curVx = role.rd.velocity.x;
-            role.rd.velocity = role.rd.velocity.X(NextVelocity(curVx, targetVx, airAccRate, Time.deltaTime));
+            var curVx = rd.velocity.x;
+            rd.velocity = rd.velocity.X(NextVelocity(curVx, targetVx, airAccRate, Time.deltaTime));
         }
         
         /// <summary>
@@ -486,7 +485,7 @@ namespace Tower.Components
         /// </summary>
         void StayOnTheGround()
         {
-            role.rd.velocity = role.rd.velocity.X(0f);
+            rd.velocity = rd.velocity.X(0f);
         }
         
         /// <summary>
@@ -494,7 +493,7 @@ namespace Tower.Components
         /// </summary>
         void MoveOnTheGround(int dir, Vector2 groundNormal)
         {
-            var curV = role.rd.velocity;
+            var curV = rd.velocity;
             Debug.DrawRay(this.transform.position, groundNormal, Color.red);
             Debug.DrawRay(this.transform.position, groundNormal.RotHalfPi(), Color.green);
             Debug.DrawRay(this.transform.position, -groundNormal.RotHalfPi(), Color.blue);
@@ -503,7 +502,7 @@ namespace Tower.Components
                 : -groundNormal.RotHalfPi() * groundHoriSpeed;
             Debug.DrawRay(this.transform.position, targetV, Color.black);
             if(curV.Dot(targetV) < 0f) curV = Vector2.zero;
-            role.rd.velocity = NextVelocity(curV, targetV, groundAccRate, Time.deltaTime);
+            rd.velocity = NextVelocity(curV, targetV, groundAccRate, Time.deltaTime);
         }
 
         /// <summary>
@@ -521,12 +520,12 @@ namespace Tower.Components
         /// </summary>
         void Jump()
         {
-            JumpCallbacks?.Invoke(role);
+            JumpCallbacks?.Invoke(this.gameObject);
             
             // 先处理位移, 保证它在下一帧会离开地面.
-            role.rd.position += Vector2.up * jumpSpeed * Time.deltaTime;
-            role.rd.velocity += new Vector2(
-                role.rd.velocity.x * jumpHoriSpeedMult,
+            rd.position += Vector2.up * jumpSpeed * Time.deltaTime;
+            rd.velocity += new Vector2(
+                rd.velocity.x * jumpHoriSpeedMult,
                 jumpSpeed
             );
         }

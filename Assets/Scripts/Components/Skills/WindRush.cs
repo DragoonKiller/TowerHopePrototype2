@@ -38,12 +38,14 @@ namespace Tower.Skills
         [Tooltip("冲刺尾部的爆炸特效对象.")]
         public GameObject localExplode;
         
-        public bool TryGetState(Role role, out StateMachine stateMachine)
+        public bool TryGetState(GameObject role, out StateMachine stateMachine)
         {
-            stateMachine = null;
+            if(!role.TryGetComponent<RoleMagic>(out var magic)) throw new Exception();
 
-            if(role.magic == null) return false;
-            if(role.magic.TryUseMagic(magicCost))
+            stateMachine = null;
+            
+            if(magic == null) return false;
+            if(magic.TryUseMagic(magicCost))
             {
                 stateMachine = new STM() {
                     data = this,
@@ -57,9 +59,16 @@ namespace Tower.Skills
         private class STM : StateMachine
         {
             public WindRush data;
-            public Role role;
+            
+            public GameObject role;
+            
+            Rigidbody2D rd => role.GetComponent<Rigidbody2D>();
+            RoleAction action => role.GetComponent<RoleAction>();
+            
             const int contactInfoExtractionLimit = 20;
+            
             readonly ContactPoint2D[] res = new ContactPoint2D[contactInfoExtractionLimit];
+            
             public override IEnumerator<Transfer> Step()
             {
                 var from = role.transform.position.ToVec2();
@@ -73,8 +82,8 @@ namespace Tower.Skills
                     // 如果超时了, 把速度设置到基础速度的一个倍数, 然后退出.
                     if(Time.time - beginTime >= data.duration)
                     {
-                        role.rd.velocity = dir.normalized * data.speed * data.restSpeedMult;
-                        yield return Trans(role.action.GetFlyState());
+                        rd.velocity = dir.normalized * data.speed * data.restSpeedMult;
+                        yield return Trans(role.GetComponent<RoleAction>().GetFlyState());
                     }
                     
                     yield return Pass();
@@ -82,21 +91,21 @@ namespace Tower.Skills
                     // 处理速度.
                     var rate = (Time.time - beginTime) / data.duration;
                     var nextV = data.curve.Evaluate(rate) * data.speed * dir.normalized;
-                    role.rd.velocity = nextV;
+                    rd.velocity = nextV;
                     
                     // 绘制移动范围.
                     DebugDraw.Circle(role.transform.position, data.curve.Integral(rate, 1.0f) * data.speed * data.duration, Color.red);
                     
                     // 检测是否撞到了地形.
-                    var ct = role.rd.GetContacts(new ContactFilter2D() {
+                    var ct = rd.GetContacts(new ContactFilter2D() {
                         layerMask = LayerMask.GetMask("Terrain")
                     }, res);
                     
                     // 如果撞到了东西, 结束...
                     if(Time.time - beginTime > data.preserveTime && ct != 0)
                     {
-                        role.rd.velocity = dir.normalized * data.speed * data.restSpeedCollisionMult;
-                        yield return Trans(role.action.GetFlyState());
+                        rd.velocity = dir.normalized * data.speed * data.restSpeedCollisionMult;
+                        yield return Trans(action.GetFlyState());
                     }
                 }
             }

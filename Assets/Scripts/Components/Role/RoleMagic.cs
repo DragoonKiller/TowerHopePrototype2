@@ -19,7 +19,7 @@ namespace Tower.Components
     /// <summary>
     /// 用于存储各种与当前法力值相关的信息, 并维护当前的法力值不要超过下界.
     /// </summary>
-    [RequireComponent(typeof(Role))]
+    [RequireComponent(typeof(RoleAction))]
     public sealed class RoleMagic : MonoBehaviour
     {
         [Tooltip("法力值.")]
@@ -31,7 +31,7 @@ namespace Tower.Components
         [Tooltip("环境因素影响的每秒法力回复值.")]
         public float recoverRate;
         
-        public Role role => this.GetComponent<Role>();
+        RoleAction action => this.GetComponent<RoleAction>();
         
         public bool TryUseMagic(float amount)
         {
@@ -56,7 +56,7 @@ namespace Tower.Components
 
         void Update()
         {
-            if(role.action == null || (role.action.touchingGround || role.action.touchingWall))
+            if(action.touchingGround || action.touchingWall)
             {
                 RecoverMagic(Time.deltaTime * recoverRate);
             }

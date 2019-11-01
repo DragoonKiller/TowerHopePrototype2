@@ -31,11 +31,7 @@ namespace Tower.Skills
         [Tooltip("每帧速度会被乘以这个常数.")]
         public float decelerateRate;
 
-        // [Tooltip("每次发动攻击会向固定方向加速移动.")]
-        // public float attackMoveSpeed;
-
-
-        public bool TryGetState(Role role, out StateMachine stateMachine)
+        public bool TryGetState(GameObject role, out StateMachine stateMachine)
         {
             var anim = GameObject.Instantiate(animSource, role.transform);
             anim.transform.localPosition = Vector3.zero;
@@ -58,10 +54,13 @@ namespace Tower.Skills
         private class STM : StateMachine
         {
             public SampleAttack data;
-            public Role role;
+            public GameObject role;
             public SpriteRenderer anim;
             public float dir;
-
+            
+            public Rigidbody2D rd => role.GetComponent<Rigidbody2D>();
+            public RoleAction action => role.GetComponent<RoleAction>();
+            
             /// <summary>
             /// 每迭代一次就步进一帧.
             /// 返回: 当前阶段是否结束.
@@ -85,19 +84,19 @@ namespace Tower.Skills
                 float t = 0f;
                 var animState = StepAnim();
 
-                role.rd.velocity = dir * Vector2.right * role.action.groundHoriSpeed;
+                rd.velocity = dir * Vector2.right * action.groundHoriSpeed;
                 
                 while(true)
                 {
                     // 移动速度减少.
-                    role.rd.velocity = role.action.NextVelocity(role.rd.velocity, Vector2.zero, data.decelerateRate, Time.deltaTime);
+                    rd.velocity = action.NextVelocity(rd.velocity, Vector2.zero, data.decelerateRate, Time.deltaTime);
 
                     t += Time.deltaTime;
                     while(t >= data.frameTime)
                     {
                         t -= data.frameTime;
                         // 没有下一帧了, 结束.
-                        if(!animState.MoveNext()) Trans(new RoleAction.MoveState(role.action));
+                        if(!animState.MoveNext()) Trans(new RoleAction.MoveState(action));
 
                         // 以该状态帧等待一段时间.
                         // 记录这段时间中的指令.
@@ -112,9 +111,9 @@ namespace Tower.Skills
                             }
 
                             // 当前阶段结束, 而且没有进行下一阶段的指令, 结束.
-                            if(!shouldContinue) Trans(new RoleAction.MoveState(role.action));
+                            if(!shouldContinue) Trans(new RoleAction.MoveState(action));
                             t -= data.phaseDelay;
-                            role.rd.velocity = dir * Vector2.right * role.action.groundHoriSpeed;
+                            rd.velocity = dir * Vector2.right * action.groundHoriSpeed;
                         }
 
                     }

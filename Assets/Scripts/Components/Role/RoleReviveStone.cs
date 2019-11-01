@@ -13,7 +13,6 @@ namespace Tower.Components
     /// 控制角色放置复活点, 存储所有有效复活点.
     /// 这个动作和技能与角色动作控制是独立的.
     /// </summary>
-    [RequireComponent(typeof(Role))]
     public sealed class RoleReviveStone : MonoBehaviour
     {
         [Tooltip("复活石放置对象的prefab.")]
@@ -41,8 +40,6 @@ namespace Tower.Components
         
         [Tooltip("角色按下放置复活点按钮的计时.")]
         [SerializeField] float process;
-        
-        Role role => this.GetComponent<Role>();
         
         bool hasReviveStone => inventory.childCount != 0;
         

@@ -16,7 +16,7 @@ namespace Tower.UI
         public GameObject imageSource;
 
         [Tooltip("这个 Magic View 应当显示哪个角色的魔法值.")]
-        public Role role;
+        public GameObject target;
 
         [Tooltip("每个用于显示魔法数值的图像需要间隔多远.")]
         public float seperationSpace;
@@ -31,19 +31,21 @@ namespace Tower.UI
         public Color emptyColor;
 
         RectTransform rect => this.GetComponent<RectTransform>();
-
+        
+        
+        
         void Update()
         {
-            if(role == null || role.magic == null)
+            if(!target.TryGetComponent<RoleMagic>(out var magic))
             {
-                Images(0); // 会清除所有图标.
+                Images(0);
                 return;
             }
-
+            
             // 添加一个微小的校正, 保证不出现一个整数 a 被 floor 到 a-1 的情况.
-            float maxMagic = role.magic.maxMagic + Maths.eps;
+            float maxMagic = magic.maxMagic + Maths.eps;
             // 当前魔法值.
-            float curMagic = role.magic.magic;
+            float curMagic = magic.magic;
             // 需要显示多少个法力数值.
             int count = maxMagic.FloorToInt();
 

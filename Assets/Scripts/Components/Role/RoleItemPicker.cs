@@ -11,7 +11,6 @@ namespace Tower.Components
     /// <summary>
     /// 用于控制角色拾取物品.
     /// </summary>
-    [RequireComponent(typeof(Role))]
     public class RoleItemPicker : MonoBehaviour
     {
         public ItemDispatcher dispatcher;

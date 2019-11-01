@@ -11,6 +11,6 @@ namespace Tower.Skills
     
     public interface ISkillConfig
     {
-        bool TryGetState(Role role, out StateMachine stateMachine);
+        bool TryGetState(GameObject role, out StateMachine stateMachine);
     }
 }

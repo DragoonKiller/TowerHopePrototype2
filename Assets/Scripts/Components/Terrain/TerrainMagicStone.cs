@@ -25,8 +25,8 @@ namespace Tower.Components
         public float fullMagicRecoverSpeed;
 
         Collider2D cd => this.GetComponent<Collider2D>();
-        readonly List<Role> prevRoles = new List<Role>();
-        readonly List<Role> roles = new List<Role>();
+        readonly List<RoleAction> prevRoles = new List<RoleAction>();
+        readonly List<RoleAction> roles = new List<RoleAction>();
         readonly List<ContactPoint2D> contacts = new List<ContactPoint2D>();
         readonly List<RoleMagic> recovered = new List<RoleMagic>(); 
 
@@ -35,21 +35,18 @@ namespace Tower.Components
             // 注意该函数会 clear 这个 list.
             cd.GetContacts(contacts);
             roles.Clear();
-            roles.AddRange(contacts.Select(x => x.collider.gameObject.GetComponent<Role>()).Where(x => x != null).Distinct());
+            roles.AddRange(contacts.Select(x => x.collider.gameObject.GetComponent<RoleAction>()).Where(x => x != null).Distinct());
             
             // 角色在魔法石上跳跃会立即回满法力.
             var (added, removed) = prevRoles.FowardComapre(roles);
-            foreach(var r in added) r.action.JumpCallbacks += this.FullRecover;
-            foreach(var r in removed) r.action.JumpCallbacks -= this.FullRecover;
+            foreach(var a in added) a.JumpCallbacks += this.FullRecover;
+            foreach(var a in removed) a.JumpCallbacks -= this.FullRecover;
             
             // 角色撞击魔法石能够立即回满法力.
             // 检查角色的法向速度是否大于给定值. 如果是, 直接回满魔法并触发特效.
             foreach(var ct in contacts)
             {
-                var role = ct.collider.GetComponent<Role>();
-                if(!role) continue;
-                var magic = role.magic;
-                if(!magic) continue;
+                if(!ct.collider.gameObject.TryGetComponent<RoleMagic>(out var magic)) continue;
                 
                 // 法线方向是朝内的.
                 var speed = ct.normal.normalized.Dot(ct.relativeVelocity);
@@ -59,19 +56,19 @@ namespace Tower.Components
             // 常规回复. 按照 magicRecoverMult * recoverRate 回复魔法.    
             foreach(var r in roles)
             {
-                if(!r.magic) continue;
+                if(!r.TryGetComponent<RoleMagic>(out var magic)) continue;
                 // 考虑到角色本身也会回复法力, 这里减掉角色自身的法力回复值.
-                r.magic.RecoverMagic(Time.deltaTime * (magicRecoverMult - 1));
+                magic.RecoverMagic(Time.deltaTime * (magicRecoverMult - 1));
             }
             
             prevRoles.Clear();
             foreach(var i in roles) prevRoles.Add(i);
         }
         
-        void FullRecover(Role role)
+        void FullRecover(GameObject role)
         {
-            if(!role.magic) return;
-            role.magic.RecoverMagic(1e5f);
+            if(!role.TryGetComponent<RoleMagic>(out var magic)) return;
+            magic.RecoverMagic(1e5f);
         }
 
     }

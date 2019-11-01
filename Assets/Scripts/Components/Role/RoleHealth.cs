@@ -12,7 +12,6 @@ namespace Tower.Components
     /// 用于存储生命值相关信息, 控制角色的生命值, 报告其生命值状态.
     /// 注意: 角色的死亡动画, 复活等, 由 RoleAction 或者别的什么东西完成. 不由此脚本负责.
     /// </summary>
-    [RequireComponent(typeof(Role))]
     public sealed class RoleHealth : MonoBehaviour
     {
         [Tooltip("最大生命值.")]
