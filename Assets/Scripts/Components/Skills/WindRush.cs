@@ -63,7 +63,7 @@ namespace Tower.Skills
             public GameObject role;
             
             Rigidbody2D rd => role.GetComponent<Rigidbody2D>();
-            RoleAction action => role.GetComponent<RoleAction>();
+            RolePlayerControl action => role.GetComponent<RolePlayerControl>();
             
             const int contactInfoExtractionLimit = 20;
             
@@ -83,7 +83,7 @@ namespace Tower.Skills
                     if(Time.time - beginTime >= data.duration)
                     {
                         rd.velocity = dir.normalized * data.speed * data.restSpeedMult;
-                        yield return Trans(role.GetComponent<RoleAction>().GetFlyState());
+                        yield return Trans(role.GetComponent<RolePlayerControl>().GetFlyState());
                     }
                     
                     yield return Pass();

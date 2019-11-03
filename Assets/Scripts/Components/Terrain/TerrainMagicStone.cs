@@ -25,8 +25,8 @@ namespace Tower.Components
         public float fullMagicRecoverSpeed;
 
         Collider2D cd => this.GetComponent<Collider2D>();
-        readonly List<RoleAction> prevRoles = new List<RoleAction>();
-        readonly List<RoleAction> roles = new List<RoleAction>();
+        readonly List<RolePlayerControl> prevRoles = new List<RolePlayerControl>();
+        readonly List<RolePlayerControl> roles = new List<RolePlayerControl>();
         readonly List<ContactPoint2D> contacts = new List<ContactPoint2D>();
         readonly List<RoleMagic> recovered = new List<RoleMagic>(); 
 
@@ -35,7 +35,7 @@ namespace Tower.Components
             // 注意该函数会 clear 这个 list.
             cd.GetContacts(contacts);
             roles.Clear();
-            roles.AddRange(contacts.Select(x => x.collider.gameObject.GetComponent<RoleAction>()).Where(x => x != null).Distinct());
+            roles.AddRange(contacts.Select(x => x.collider.gameObject.GetComponent<RolePlayerControl>()).Where(x => x != null).Distinct());
             
             // 角色在魔法石上跳跃会立即回满法力.
             var (added, removed) = prevRoles.FowardComapre(roles);

@@ -205,12 +205,15 @@ namespace Utils
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 X(this Vector3 a, float x) => new Vector3(x, a.y, a.z);
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 Y(this Vector3 a, float y) => new Vector3(a.x, y, a.z);
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 Z(this Vector3 a, float z) => new Vector3(a.x, a.y, z);
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3 XY(this Vector3 a, Vector2 t) => new Vector3(t.x, t.y, a.z);
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Color R(this Color x, float v) => new Color(v, x.g, x.b, x.a);

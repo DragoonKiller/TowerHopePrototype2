@@ -12,7 +12,7 @@ namespace Tower.Components
     using Skills;
 
     /// <summary>
-    /// 定义了角色的移动行为.
+    /// 定义了玩家控制的角色的移动行为.
     /// </summary>
     // 需要处理的角色移动机制包括:
     // * [地面] 在地面上站立不动.
@@ -32,23 +32,22 @@ namespace Tower.Components
     // 地面和空中的状态机处理自己的特殊机制, 包括左右移动, 抓地, 抓墙, 转换到另一个状态等.
     // 技能状态机处理自己的特殊机制.
     // 技能执行结束时, 其状态机通过 Trans 切换到 地面或空中状态. 一般都是空中状态, 因为不能起跳.
-    // 为了保证最终的手感, 需要额外的机制:
-    // * 空中状态有一个跳跃计数. 从地面起跳变为空中状态, 或者技能结束变为空中状态, 跳跃计数初始化为 0. 
-    //   其它情况离开地面, 空中状态跳跃计数初始化为 1, 一段时间后 -1. 用这个机制实现短时离地起跳. 
-    // * 地面状态有一个"跳跃计数", 跳起后 -1, 放开跳跃键后 +1, 这样能保证长按空格时不会一直跳.
+    // 为了保证最终的手感, 需要额外的机制.
+    // * 离开地面一段时间后才从地面状态切换到空中状态.
+    //   注意我们训练玩家跳跃之后再放技能, 所以尽可能提升跳跃的流畅度, 而不是放技能的流畅度.
     [RequireComponent(typeof(RoleRigidbody))]
     [RequireComponent(typeof(RoleSkills))]
     [Serializable]
-    public sealed class RoleAction : MonoBehaviour
+    public sealed class RolePlayerControl : MonoBehaviour
     {
         #region Types
         
         public abstract class BaseState : StateMachine
         {
-            protected readonly RoleAction action;
+            protected readonly RolePlayerControl action;
             protected RoleSkills skills => action.GetComponent<RoleSkills>();
             protected Rigidbody2D rd => action.GetComponent<Rigidbody2D>();
-            public BaseState(RoleAction roleAction) => this.action = roleAction;
+            public BaseState(RolePlayerControl roleAction) => this.action = roleAction;
             
             /// <summary>
             /// 工具函数: 尝试施放技能.
@@ -87,7 +86,7 @@ namespace Tower.Components
         
         public sealed class FlyState : BaseState
         {
-            public FlyState(RoleAction roleAction) : base(roleAction) { }
+            public FlyState(RolePlayerControl roleAction) : base(roleAction) { }
             
             /// <summary>
             /// 抓墙时限. 墙跳后一段时间内不允许再抓墙.
@@ -170,7 +169,7 @@ namespace Tower.Components
         {
             public float leavingGroundTime = 0;
             
-            public MoveState(RoleAction roleAction) : base(roleAction) { }
+            public MoveState(RolePlayerControl roleAction) : base(roleAction) { }
             
             public override IEnumerator<Transfer> Step()
             {

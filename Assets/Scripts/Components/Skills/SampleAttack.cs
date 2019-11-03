@@ -59,7 +59,7 @@ namespace Tower.Skills
             public float dir;
             
             public Rigidbody2D rd => role.GetComponent<Rigidbody2D>();
-            public RoleAction action => role.GetComponent<RoleAction>();
+            public RolePlayerControl action => role.GetComponent<RolePlayerControl>();
             
             /// <summary>
             /// 每迭代一次就步进一帧.
@@ -96,7 +96,7 @@ namespace Tower.Skills
                     {
                         t -= data.frameTime;
                         // 没有下一帧了, 结束.
-                        if(!animState.MoveNext()) Trans(new RoleAction.MoveState(action));
+                        if(!animState.MoveNext()) Trans(new RolePlayerControl.MoveState(action));
 
                         // 以该状态帧等待一段时间.
                         // 记录这段时间中的指令.
@@ -111,7 +111,7 @@ namespace Tower.Skills
                             }
 
                             // 当前阶段结束, 而且没有进行下一阶段的指令, 结束.
-                            if(!shouldContinue) Trans(new RoleAction.MoveState(action));
+                            if(!shouldContinue) Trans(new RolePlayerControl.MoveState(action));
                             t -= data.phaseDelay;
                             rd.velocity = dir * Vector2.right * action.groundHoriSpeed;
                         }

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Utils
@@ -14,12 +15,75 @@ namespace Utils
     public static partial class Algorthms
     {
         /// <summary>
+        /// 多边形绕转次数.
+        /// 按照顶点给出的顺序, 累计每个向量的绕转角度.
+        /// 绕转次数是该角度和周角(2pi)的比值.
+        /// 其符号由叉积正方向决定.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int RevolveCount(this List<Vector2> p)
+        {
+            float angle = 0;
+            for(int i = 0; i < p.Count; i++)
+            {
+                var pre = p[(i - 1).ModSys(p.Count)];
+                var cur = p[i];
+                var nxt = p[(i + 1).ModSys(p.Count)];
+                var a = pre.To(cur).normalized;
+                var b = cur.To(nxt).normalized;
+                var x = a.Dot(b);
+                var y = a.Cross(b);
+                angle += Mathf.Atan2(y, x);
+            }
+            return (angle / (2 * Mathf.PI)).RoundToInt();
+        }
+        
+        /// <summary>
+        /// 如果给定顶点列表的顶点绕转方向总是不变, 返回 ture.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsDirectional(this List<Vector2> p)
+        {
+            int dir = 0;
+            for(int i = 0; i < p.Count; i++)
+            {
+                var pre = p[(i - 1).ModSys(p.Count)];
+                var cur = p[i];
+                var nxt = p[(i + 1).ModSys(p.Count)];
+                var a = pre.To(cur).normalized;
+                var b = cur.To(nxt).normalized;
+                var res = a.Cross(b).Sgn();
+                if(res == 0) continue;
+                if(dir == 0) dir = res;
+                else if(dir != res) return false;
+            }
+            return true;
+        }
+        
+        /// <summary>
+        /// 删除共线顶点.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static List<Vector2> RemoveColinear(this IList<Vector2> p)
+        {
+            var res = new List<Vector2>();
+            for(int i = 0; i < p.Count; i++)
+            {
+                var pre = p[(i - 1).ModSys(p.Count)];
+                var cur = p[i];
+                var nxt = p[(i + 1).ModSys(p.Count)];
+                var a = pre.To(cur).normalized;
+                var b = cur.To(nxt).normalized;
+                if(a.Cross(b).Sgn() != 0) res.Add(cur);
+            }
+            return res;
+        }
+        
+        /// <summary>
         /// 把一个闭合的, 没有"洞"的多边形的边界转化成三角形的网格. <br/>
         /// "割耳"算法.
         /// 复杂度 n^2, n 是点数.
         /// </summary>
-        /// <param name="p"></param>
-        /// <returns></returns>
         public static List<Triangle> Triangulation(this List<Vector2> p)
         {
             if(p.Count < 3) return new List<Triangle>();
@@ -36,20 +100,8 @@ namespace Utils
                 return (lv, cv, rv);
             }
 
-            /// <summary>
-            /// 顺时针返回1, 逆时针返回-1, 全部共线返回0.
-            /// </summary>
-            /// <param name="p"></param>
-            /// <returns></returns>
-            int CurveSign()
-            {
-                float area = 0;
-                var g = p[0];
-                for(int i = 2; i < p.Count; i++) area += g.To(p[i - 1]).Cross(g.To(p[i]));
-                return area.Sgn();
-            }
-
-            int curveSign = CurveSign();
+            int curveSign = p.RevolveCount();
+            curveSign /= curveSign.Abs();
             bool IsEar(int id)
             {
                 var (lv, cv, rv) = GetTriangle(id);

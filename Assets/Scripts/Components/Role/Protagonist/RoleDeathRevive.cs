@@ -10,7 +10,7 @@ namespace Tower.Components
     /// <summary>
     /// 控制角色死亡复活.
     /// </summary>
-    [RequireComponent(typeof(RoleAction))]
+    [RequireComponent(typeof(RolePlayerControl))]
     [RequireComponent(typeof(RoleHealth))]
     [RequireComponent(typeof(RoleReviveStone))]
     public class RoleDeathRevive : MonoBehaviour
@@ -21,7 +21,26 @@ namespace Tower.Components
         [Tooltip("复活耗时.")]
         public float duration;
         
-        RoleAction action => this.GetComponent<RoleAction>();
+        [Tooltip("最大位置变化.")]
+        public Vector2 maxOffset;
+        
+        [Tooltip("位置变化曲线.")]
+        public AnimationCurve offsetCurve;
+        
+        [Tooltip("复活特效控制脚本.")]
+        public ReviveFX fx;
+        
+        /// <summary>
+        /// 死亡动作进度.
+        /// </summary>
+        public float deathProcess { get; private set; }
+        
+        /// <summary>
+        /// 是否正在处理死亡过程.
+        /// </summary>
+        public bool isDeath { get; private set; }
+        
+        RolePlayerControl action => this.GetComponent<RolePlayerControl>();
         RoleHealth health => this.GetComponent<RoleHealth>();
         RoleReviveStone reviveStones => this.GetComponent<RoleReviveStone>();
         RoleTrail trail => this.GetComponent<RoleTrail>();
@@ -54,17 +73,27 @@ namespace Tower.Components
         {
             public RoleDeathRevive revive;
             
-            float beginTime;
-            
             public override IEnumerator<Transfer> Step()
             {
-                beginTime = Time.time;
+                var beginTime = Time.time;
+                var basePos = revive.transform.position;
+                
+                revive.isDeath = true;
+                revive.deathProcess = 0;
                 
                 while(true)
                 {
                     yield return Pass();
                     var totalTime = Time.time - beginTime;
-                    if(totalTime >= revive.duration)
+                    
+                    revive.deathProcess = totalTime / revive.duration;
+                    
+                    if(totalTime < revive.duration)
+                    {
+                        var offset = revive.maxOffset * revive.offsetCurve.Evaluate(revive.deathProcess);
+                        revive.transform.position = (basePos.ToVec2() + offset).ToVec3(basePos.z);
+                    }
+                    else
                     {
                         // 回满血.
                         revive.health.curHealth = revive.health.maxHealth;
@@ -84,6 +113,9 @@ namespace Tower.Components
                         
                         // 设置特效.
                         if(revive.trail) revive.trail.Reset();
+                        
+                        revive.isDeath = false;
+                        revive.deathProcess = 0;
                         
                         // 转移到等待状态.
                         yield return Trans(new WaitForDeathState() { revive = revive });
