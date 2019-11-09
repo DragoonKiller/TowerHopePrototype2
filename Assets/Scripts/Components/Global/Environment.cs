@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 using Systems;
 using Utils;
@@ -16,19 +17,15 @@ namespace Tower.Components
     [ExecuteAlways]
     public class Environment : MonoBehaviour
     {
-        // 物理帧计时器.
-        float physicsTimer;
-
         [Tooltip("帧变速乘数. 帧时间会被乘以这个常数; 但是实际渲染流程不会发生改变.")]
         public float timeMult;
 
         public bool editor => Application.isEditor;
         public bool running => Application.isPlaying;
-
+        
         void Start()
         {
             KeyBinding.inst.Load();
-            physicsTimer = Time.fixedTime;
         }
 
         void Update()

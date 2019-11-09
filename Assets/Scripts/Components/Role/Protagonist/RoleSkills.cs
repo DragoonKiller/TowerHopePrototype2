@@ -22,5 +22,4 @@ namespace Tower.Components
             attack = SkillTable.inst.sampleAttack;
         }
     }
-
 }

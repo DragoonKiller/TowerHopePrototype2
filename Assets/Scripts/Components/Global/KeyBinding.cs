@@ -45,8 +45,6 @@ namespace Tower.Global
 
         [SerializeField] Setting moveLeftSetting;
         [SerializeField] Setting moveRightSetting;
-        [SerializeField] Setting jumpSetting;
-        [SerializeField] Setting crouchSetting;
         
         [SerializeField] Setting setReviveSetting;
 
@@ -55,19 +53,18 @@ namespace Tower.Global
         [SerializeField] Setting magicAttackSetting;
         [SerializeField] Setting primarySkillSetting;
         [SerializeField] Setting secondarySkillSetting;
-
+        
+        [SerializeField] Setting interactSetting;
         [SerializeField] Setting menuSetting;
         [SerializeField] Setting inventorySetting;
         [SerializeField] Setting minimapSetting;
         
         // 注意: 名称需要和 KeySetting 一致, 以便反射读取.
-
+        
         public KeyCode advancedSkill { get; private set; }
-
+        
         public KeyCode moveLeft { get; private set; }
         public KeyCode moveRight { get; private set; }
-        public KeyCode jump { get; private set; }
-        public KeyCode crouch { get; private set; }
         
         public KeyCode setRevive { get; private set; }
         
@@ -76,18 +73,19 @@ namespace Tower.Global
         public KeyCode magicAttack { get; private set; }
         public KeyCode primarySkill { get; private set; }
         public KeyCode secondarySkill { get; private set; }
-
+        
+        public KeyCode interact { get; private set; }
         public KeyCode menu { get; private set; }
         public KeyCode inventory { get; private set; }
         public KeyCode minimap { get; private set; }
-
+        
         readonly static List<KeyCode> bindedKeys = new List<KeyCode>();
-
+        
         public KeyBinding()
         {
             inst = this;
         }
-
+        
         public void Load()
         {
             foreach(var key in bindedKeys) CommandQueue.Unbind(key);
