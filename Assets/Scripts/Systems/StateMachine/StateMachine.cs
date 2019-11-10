@@ -92,6 +92,11 @@ namespace Systems
         public Tag tag;
         
         /// <summary>
+        /// 指示这个状态机是否还在活动.
+        /// </summary>
+        public bool active = true;
+        
+        /// <summary>
         /// 状态机每帧执行逻辑.
         /// </summary>
         public abstract IEnumerator<Transfer> Step();
@@ -120,11 +125,6 @@ namespace Systems
             this.tag = sm.tag;
             return this;
         }
-
-        /// <summary>
-        /// 状态机被清除时应当执行的动作.
-        /// </summary>
-        public virtual void OnExit() { }
 
         // ============================================================================================================
         // Static storage and maintance
@@ -227,7 +227,14 @@ namespace Systems
             while(cur.Count != 0)
             {
                 var x = cur.Dequeue();
-
+                
+                // x 不活动. 把它放到下一帧.
+                if(!x.active)
+                {
+                    nxt.Enqueue(x);
+                    continue;
+                }
+                
                 // x 是第一次开始执行
                 if(x.curState == null) x.curState = x.Step();
                 
@@ -290,7 +297,6 @@ namespace Systems
                         // 将 next 放到当前队列执行.
                         var next = trans.next;
                         cur.Enqueue(next);
-                        x.OnExit();
                         break;
                     }
 
@@ -305,9 +311,6 @@ namespace Systems
                         // 注意不是放到当前状态机队列.
                         nxt.Enqueue(x.parent);
                     }
-
-                    // 无论如何, 当前状态机应当删除.
-                    x.OnExit();
                 }
             }
         }
@@ -324,7 +327,6 @@ namespace Systems
             {
                 var x = cur.Dequeue();
                 if(!removeList.Contains(x.tag)) cur.Enqueue(x);
-                else x.OnExit();
             }
             removeList.Clear();
         }

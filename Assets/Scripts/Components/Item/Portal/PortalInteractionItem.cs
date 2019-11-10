@@ -11,11 +11,13 @@ namespace Tower.Components
     /// </summary>
     public class PortalInteractionItem : InteractionItem
     {
+        [Tooltip("目标场景.")]
+        public string targetSceneName;
+        
         public override void Interact(GameObject op)
         {
             // TODO
             Debug.Log("Interact");
         }
     }
-
 }

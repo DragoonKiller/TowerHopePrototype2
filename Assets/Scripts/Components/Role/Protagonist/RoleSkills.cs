@@ -19,7 +19,6 @@ namespace Tower.Components
         void Start()
         {
             rush = SkillTable.inst.windRush;
-            attack = SkillTable.inst.sampleAttack;
         }
     }
 }

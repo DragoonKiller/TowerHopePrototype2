@@ -54,6 +54,7 @@ namespace Tower.Components
         void Start()
         {
             beginTime = Time.time;
+            mat = new Material(mat);
         }
         
         void Update()

@@ -13,7 +13,6 @@ namespace Tower.Global
         public static SkillTable inst;
         SkillTable() => inst = this;
 
-        [SerializeField] public SampleAttack sampleAttack;
         [SerializeField] public WindRush windRush;
 
     }
