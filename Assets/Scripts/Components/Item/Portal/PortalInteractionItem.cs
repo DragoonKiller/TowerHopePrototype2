@@ -16,8 +16,7 @@ namespace Tower.Components
         
         public override void Interact(GameObject op)
         {
-            // TODO
-            Debug.Log("Interact");
+            SceneTransition.inst.ChangeScene(targetSceneName);
         }
     }
 }

@@ -33,8 +33,14 @@ namespace Tower.Components
         void Update()
         {
             currentItemsCount = currentItems.Count;
+            CleanItems();
             AdjustHint();
             TryInteraction(); 
+        }
+        
+        void CleanItems()
+        {
+            currentItems.RemoveAll(x => x == null);
         }
         
         void AdjustHint()

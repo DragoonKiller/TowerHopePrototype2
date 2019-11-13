@@ -69,8 +69,9 @@ namespace Tower.Components
                 trans.curtain = 1;
                 
                 // 场景切换.
-                var nxt = SceneManager.LoadSceneAsync(trans.changeSceneName);
-                var cur = SceneManager.LoadSceneAsync(trans.curSceneName);
+                var nxt = SceneManager.LoadSceneAsync(trans.changeSceneName, LoadSceneMode.Additive);
+                nxt.allowSceneActivation = true;
+                var cur = SceneManager.UnloadSceneAsync(trans.curSceneName);
                 while(!(nxt.isDone && cur.isDone)) yield return Pass();
                 
                 // 幕布升起.
@@ -81,7 +82,6 @@ namespace Tower.Components
                     yield return Pass();
                 }
                 trans.curtain = 0;
-                
             }
         }
     }
